@@ -1,0 +1,3125 @@
+
+
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#090d17" />
+        <title>WR Build Assist</title>
+        <style>
+            :root {
+                --bg: #090d17;
+                --panel: rgba(13, 22, 38, 0.96);
+                --line: #293b56;
+                --txt: #edf3ff;
+                --muted: #9aabc3;
+                --cyan: #58d8e8;
+                --gold: #e8bd67;
+                --red: #ff7777;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                min-height: 100vh;
+                color: var(--txt);
+                font:
+                    15px/1.5 Arial,
+                    sans-serif;
+                background:
+                    linear-gradient(rgba(5, 10, 20, 0.84), rgba(5, 10, 20, 0.95)),
+                    url("https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Fizz_0.jpg") center top/cover fixed
+                        no-repeat;
+            }
+            button,
+            input {
+                font: inherit;
+            }
+            button {
+                cursor: pointer;
+            }
+            .wrap {
+                width: min(1000px, 100%);
+                margin: auto;
+                padding: 20px 15px 45px;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                gap: 10px;
+            }
+            .logo {
+                font-size: 20px;
+                font-weight: 900;
+                letter-spacing: 2px;
+            }
+            .logo span {
+                color: var(--cyan);
+            }
+            .tag {
+                border: 1px solid #28616b;
+                border-radius: 30px;
+                padding: 5px 10px;
+                color: var(--cyan);
+                font-size: 11px;
+            }
+            .panel {
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 17px;
+                padding: 20px;
+                margin-bottom: 16px;
+                box-shadow: 0 15px 40px #0008;
+                backdrop-filter: blur(8px);
+            }
+            .login {
+                max-width: 450px;
+                margin: 9vh auto;
+            }
+            .eyebrow {
+                color: var(--cyan);
+                font-size: 11px;
+                font-weight: bold;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+            h1 {
+                font-size: clamp(25px, 5vw, 35px);
+                line-height: 1.15;
+                margin: 10px 0;
+            }
+            h2 {
+                font-size: 17px;
+                margin: 0 0 14px;
+            }
+            p {
+                color: var(--muted);
+            }
+            .field {
+                margin: 15px 0;
+            }
+            .field label {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 7px;
+            }
+            input {
+                width: 100%;
+                background: #091323;
+                color: white;
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 13px;
+                outline: none;
+            }
+            input:focus {
+                border-color: var(--cyan);
+            }
+            .btn {
+                width: 100%;
+                border: 0;
+                border-radius: 10px;
+                padding: 13px;
+                font-weight: 900;
+                color: #07141d;
+                background: linear-gradient(110deg, #62e0e9, #8ce9d0);
+            }
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: wait;
+            }
+            .btn.secondary {
+                width: auto;
+                background: #1b2b43;
+                border: 1px solid var(--line);
+                color: white;
+                padding: 9px 13px;
+            }
+            .hidden {
+                display: none !important;
+            }
+            .muted {
+                font-size: 12px;
+                color: var(--muted);
+            }
+            .error {
+                color: var(--red);
+                font-size: 12px;
+                margin-top: 10px;
+                white-space: pre-wrap;
+            }
+            .expiry {
+                color: var(--gold);
+                font-size: 12px;
+                text-align: right;
+            }
+            .topline {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 13px;
+            }
+            .slotbox {
+                background: #091323;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 13px;
+                min-width: 0;
+            }
+            .slotbox label {
+                display: block;
+                font-size: 11px;
+                color: var(--muted);
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+            .sectionhead {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+            .autocomplete {
+                position: relative;
+                width: 100%;
+            }
+            .autocomplete input {
+                width: 100%;
+            }
+            .suggestions {
+                position: absolute;
+                top: calc(100% + 5px);
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                max-height: 230px;
+                overflow-y: auto;
+                background: #101d31;
+                border: 1px solid #38516f;
+                border-radius: 10px;
+                box-shadow: 0 12px 30px #000b;
+                display: none;
+            }
+            .suggestions.show {
+                display: block;
+            }
+            .suggestion {
+                display: block;
+                width: 100%;
+                padding: 11px 12px;
+                text-align: left;
+                border: 0;
+                border-bottom: 1px solid #253650;
+                background: transparent;
+                color: white;
+                font-size: 13px;
+            }
+            .suggestion:last-child {
+                border-bottom: 0;
+            }
+            .suggestion:hover,
+            .suggestion.active {
+                background: #1b4054;
+                color: var(--cyan);
+            }
+            .no-results {
+                padding: 12px;
+                font-size: 12px;
+                color: var(--muted);
+            }
+            .enemy-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 9px;
+            }
+            .enemy {
+                min-width: 0;
+            }
+            .items {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                counter-reset: item;
+            }
+            .item {
+                position: relative;
+                background: #091323;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: 13px 10px 12px 42px;
+                min-height: 78px;
+            }
+            .item:before {
+                counter-increment: item;
+                content: counter(item);
+                position: absolute;
+                left: 10px;
+                top: 13px;
+                width: 23px;
+                height: 23px;
+                border-radius: 7px;
+                background: #173b4b;
+                color: var(--cyan);
+                display: grid;
+                place-items: center;
+                font-weight: bold;
+            }
+            .item b {
+                display: block;
+                font-size: 13px;
+            }
+            .item small {
+                display: block;
+                color: var(--muted);
+                font-size: 11px;
+                margin-top: 4px;
+            }
+            .item.core {
+                border-color: var(--gold);
+                box-shadow: inset 0 0 0 1px #e8bd6733;
+            }
+            .item.core:before {
+                background: #5a4826;
+                color: var(--gold);
+            }
+            .item.boots {
+                border-color: #a78bfa;
+                box-shadow: inset 0 0 0 1px #a78bfa33;
+            }
+            .item.boots:before {
+                background: #342a52;
+                color: #c4b5fd;
+            }
+            .results {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat {
+                background: #091323;
+                border: 1px solid var(--line);
+                border-radius: 11px;
+                padding: 13px;
+            }
+            .stat b {
+                display: block;
+                margin-bottom: 4px;
+                font-size: 12px;
+                color: var(--cyan);
+            }
+            .stat span {
+                font-size: 13px;
+                color: var(--txt);
+            }
+            .foot {
+                text-align: center;
+                color: #8290a5;
+                font-size: 11px;
+                padding: 15px;
+            }
+            @media (max-width: 700px) {
+                .enemy-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .enemy:last-child {
+                    grid-column: span 2;
+                }
+                .items {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            @media (max-width: 390px) {
+                .items {
+                    grid-template-columns: 1fr;
+                }
+                .panel {
+                    padding: 14px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <header class="brand">
+                <div class="logo">WR <span>BUILD ASSIST</span></div>
+                <div class="tag">WILD RIFT • 7.3e</div>
+            </header>
+            <section id="login" class="panel login">
+                <div class="eyebrow">Acesso de assinante</div>
+                <h1>Prepare sua próxima partida.</h1>
+                <p>Digite seu código de assinatura para liberar o aplicativo.</p>
+                <div class="field">
+                    <label for="code">CÓDIGO DE ASSINATURA</label>
+                    <input id="code" placeholder="Digite seu código" autocomplete="off" />
+                </div>
+                <button type="button" class="btn" id="loginBtn">VALIDAR E ENTRAR</button>
+                <div id="loginMsg" class="error" role="status" aria-live="polite"></div>
+                <p class="muted" style="margin-top: 18px">
+                    Suporte: WhatsApp 61 98253-6147<br />nostressywildrift@gmail.com
+                </p>
+            </section>
+            <main id="app" class="hidden">
+                <section class="panel">
+                    <div class="topline">
+                        <div>
+                            <div class="eyebrow">Seleção de campeões</div>
+                            <h1 style="font-size: 26px">Qual é a composição inimiga?</h1>
+                        </div>
+                        <div id="expiry" class="expiry">Assinatura ativa</div>
+                    </div>
+                    <div class="grid">
+                        <div class="slotbox">
+                            <label for="champSearch">SEU CAMPEÃO</label>
+                            <div class="autocomplete">
+                                <input
+                                    id="champSearch"
+                                    placeholder="Digite para buscar campeão..."
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                />
+                                <div class="suggestions" id="champSuggestions"></div>
+                            </div>
+                        </div>
+                        <div class="slotbox">
+                            <label>SELEÇÃO</label>
+                            <div class="muted">
+                                Escolha seu campeão e os cinco adversários para gerar sua recomendação de itens.
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 18px">
+                        <div class="sectionhead">
+                            <h2>Composição inimiga</h2>
+                            <span class="muted">5 campeões</span>
+                        </div>
+                        <div class="enemy-grid" id="enemySlots"></div>
+                    </div>
+                    <div style="margin-top: 17px">
+                        <button type="button" class="btn" id="buildBtn">ANALISAR E GERAR BUILD</button>
+                        <div id="buildMsg" class="error" role="status" aria-live="polite"></div>
+                    </div>
+                </section>
+                <section id="output" class="hidden">
+                    <div class="panel">
+                        <div class="eyebrow">Recomendação situacional</div>
+                        <div class="sectionhead">
+                            <h2 id="buildTitle" style="font-size: 20px; margin: 5px 0">Sua build</h2>
+                            <button type="button" class="btn secondary" id="copyBtn">COPIAR</button>
+                        </div>
+                        <div class="items" id="items"></div>
+                        <p class="muted" id="buildReason" style="margin-top: 13px"></p>
+                    </div>
+                    <div class="panel">
+                        <h2>Análise e utilidades</h2>
+                        <div class="results" id="runes"></div>
+                    </div>
+                </section>
+                <div class="foot">WR BUILD ASSIST 1.0.0 · Wild Rift · Patch 7.3e</div>
+            </main>
+        </div>
+        <script>
+            "use strict"; /* CONFIGURAÇÃO DO APPS SCRIPT */
+            const API_URL =
+                "https://script.google.com/macros/s/AKfycbzVOD2HlXBN6L6DahwPli11LMoBRuo_hQOCmxwmESJOBo9AOm9gWsSGKbaFe967cQasyA/exec";
+            const $ = (id) => document.getElementById(id);
+            let jsonpCounter = 0;
+
+            /*
+            - JSONP: o Netlify e o Apps Script estão em domínios diferentes.
+            - Por isso a validação é feita carregando uma resposta JavaScript,
+            - e não por fetch/google.script.run.
+            */
+            function chamarServidor(codigo, dispositivoId) {
+                return new Promise((resolve, reject) => {
+                    const callbackName = "wrbaCallback_" + Date.now() + "_" + ++jsonpCounter;
+                    const script = document.createElement("script");
+                    let finalizado = false;
+                    let timeoutId;
+
+                    function limpar() {
+                        if (finalizado) return;
+                        finalizado = true;
+                        clearTimeout(timeoutId);
+                        script.remove();
+                        try {
+                            delete window[callbackName];
+                        } catch (e) {
+                            window[callbackName] = undefined;
+                        }
+                    }
+
+                    timeoutId = setTimeout(() => {
+                        limpar();
+                        reject(new Error("O servidor demorou para responder. Verifique a conexão e tente novamente."));
+                    }, 20000);
+
+                    window[callbackName] = (dados) => {
+                        limpar();
+                        if (!dados || typeof dados !== "object" || typeof dados.autorizado !== "boolean") {
+                            reject(
+                                new Error(
+                                    "O servidor respondeu em formato inesperado. Confira a implantação do Apps Script."
+                                )
+                            );
+                            return;
+                        }
+                        resolve(dados);
+                    };
+
+                    script.onerror = () => {
+                        limpar();
+                        reject(
+                            new Error(
+                                "Não foi possível carregar a resposta do servidor de licenças. Confira a URL e a implantação do Apps Script."
+                            )
+                        );
+                    };
+
+                    const parametros = new URLSearchParams({
+                        codigo: String(codigo || "").trim(),
+                        dispositivoId: String(dispositivoId || "").trim(),
+                        callback: callbackName,
+                    });
+
+                    script.src = API_URL + "?" + parametros.toString();
+                    script.async = true;
+                    document.head.appendChild(script);
+                });
+            }
+
+            /* LISTA DE CAMPEÕES */
+            const CHAMPIONS = [
+                "Aatrox",
+                "Ahri",
+                "Akali",
+                "Akshan",
+                "Alistar",
+                "Ambessa",
+                "Amumu",
+                "Annie",
+                "Ashe",
+                "Aurelion Sol",
+                "Aurora",
+                "Bard",
+                "Blitzcrank",
+                "Brand",
+                "Braum",
+                "Caitlyn",
+                "Camille",
+                "Cho'Gath",
+                "Corki",
+                "Darius",
+                "Diana",
+                "Dr. Mundo",
+                "Draven",
+                "Ekko",
+                "Evelynn",
+                "Ezreal",
+                "Fiddlesticks",
+                "Fiora",
+                "Fizz",
+                "Galio",
+                "Garen",
+                "Gnar",
+                "Gragas",
+                "Graves",
+                "Gwen",
+                "Hecarim",
+                "Heimerdinger",
+                "Hwei",
+                "Irelia",
+                "Janna",
+                "Jarvan IV",
+                "Jax",
+                "Jayce",
+                "Jhin",
+                "Jinx",
+                "K'Sante",
+                "Kai'Sa",
+                "Kalista",
+                "Karma",
+                "Kassadin",
+                "Katarina",
+                "Kayle",
+                "Kayn",
+                "Kennen",
+                "Kha'Zix",
+                "Kindred",
+                "Kog'Maw",
+                "Lee Sin",
+                "Leona",
+                "Lillia",
+                "Lissandra",
+                "Lucian",
+                "Lulu",
+                "Lux",
+                "Malphite",
+                "Maokai",
+                "Master Yi",
+                "Mel",
+                "Milio",
+                "Miss Fortune",
+                "Mordekaiser",
+                "Morgana",
+                "Nami",
+                "Nasus",
+                "Nautilus",
+                "Nidalee",
+                "Nilah",
+                "Nocturne",
+                "Norra",
+                "Nunu e Willump",
+                "Olaf",
+                "Orianna",
+                "Ornn",
+                "Pantheon",
+                "Poppy",
+                "Pyke",
+                "Rakan",
+                "Rammus",
+                "Rell",
+                "Renekton",
+                "Rengar",
+                "Riven",
+                "Rumble",
+                "Ryze",
+                "Samira",
+                "Senna",
+                "Seraphine",
+                "Sett",
+                "Shen",
+                "Shyvana",
+                "Singed",
+                "Sion",
+                "Sivir",
+                "Skarner",
+                "Smolder",
+                "Sona",
+                "Soraka",
+                "Swain",
+                "Syndra",
+                "Taliyah",
+                "Talon",
+                "Teemo",
+                "Thresh",
+                "Tristana",
+                "Tryndamere",
+                "Twisted Fate",
+                "Twitch",
+                "Urgot",
+                "Varus",
+                "Vayne",
+                "Veigar",
+                "Vel'Koz",
+                "Vex",
+                "Vi",
+                "Viego",
+                "Viktor",
+                "Vladimir",
+                "Volibear",
+                "Warwick",
+                "Wukong",
+                "Xayah",
+                "Xin Zhao",
+                "Yasuo",
+                "Yone",
+                "Yunara",
+                "Yuumi",
+                "Zed",
+                "Zeri",
+                "Ziggs",
+                "Zilean",
+                "Zoe",
+                "Zyra",
+            ];
+
+            /* IDENTIFICADOR PERSISTENTE DO APARELHO */
+            function obterIdentificadorAparelho() {
+                const CHAVE = "wrba_device_id";
+                const formatoUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+                try {
+                    let id = localStorage.getItem(CHAVE);
+                    if (id && formatoUUID.test(id)) return id;
+
+                    if (!window.crypto || !window.crypto.getRandomValues) return "";
+
+                    const bytes = new Uint8Array(16);
+                    window.crypto.getRandomValues(bytes);
+                    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+                    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+                    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0"));
+                    id = [
+                        hex.slice(0, 4).join(""),
+                        hex.slice(4, 6).join(""),
+                        hex.slice(6, 8).join(""),
+                        hex.slice(8, 10).join(""),
+                        hex.slice(10, 16).join(""),
+                    ].join("-");
+
+                    localStorage.setItem(CHAVE, id);
+                    return id;
+                } catch (erro) {
+                    console.error("Falha ao criar identificador do aparelho:", erro);
+                    return "";
+                }
+            }
+            let DEVICE_ID = obterIdentificadorAparelho();
+
+            /* SESSÃO E VALIDAÇÃO DA LICENÇA */
+            let codigoSessaoAtiva = "";
+            let sessaoLicencaValida = false;
+            if (window.WRBolha && typeof window.WRBolha.ocultarBolha === "function") {
+    window.WRBolha.ocultarBolha();
+}
+            let validacaoLicencaEmAndamento = false;
+            let intervaloVerificacaoLicenca = null;
+            let versaoSessao = 0;
+            let bloqueioEmAndamento = false;
+            window.lastBuild = null;
+
+            function limparBuildAtual() {
+                $("runes").innerHTML = "";
+                $("items").innerHTML = "";
+                $("buildMsg").textContent = "";
+                $("output").classList.add("hidden");
+                window.lastBuild = null;
+            }
+
+            function pararMonitoramento() {
+                if (intervaloVerificacaoLicenca) {
+                    clearInterval(intervaloVerificacaoLicenca);
+                    intervaloVerificacaoLicenca = null;
+                }
+            }
+
+            function bloquearSessao(mensagem) {
+                if (bloqueioEmAndamento) return;
+                bloqueioEmAndamento = true;
+                sessaoLicencaValida = false;
+                codigoSessaoAtiva = "";
+                validacaoLicencaEmAndamento = false;
+                versaoSessao++;
+                pararMonitoramento();
+                limparBuildAtual();
+                $("app").classList.add("hidden");
+                $("login").classList.remove("hidden");
+                $("loginMsg").textContent = mensagem || "A licença não está mais válida. Entre novamente.";
+            }
+
+            function iniciarMonitoramentoLicenca() {
+                pararMonitoramento();
+                intervaloVerificacaoLicenca = setInterval(revalidarLicencaNoServidor, 60000);
+            }
+
+            async function revalidarLicencaNoServidor() {
+                if (!sessaoLicencaValida || !codigoSessaoAtiva || validacaoLicencaEmAndamento) return;
+                const versaoAtual = versaoSessao;
+                validacaoLicencaEmAndamento = true;
+                try {
+                    const devId = DEVICE_ID || obterIdentificadorAparelho();
+                    const dados = await chamarServidor(codigoSessaoAtiva, devId);
+                    if (versaoAtual !== versaoSessao) return;
+                    if (dados.autorizado !== true) {
+                        bloquearSessao(dados.mensagem || "Sua licença não está mais autorizada.");
+                        return;
+                    }
+                    if (dados.dataExpiracao) $("expiry").textContent = "Expira em: " + dados.dataExpiracao;
+                } catch (erro) {
+                    if (versaoAtual === versaoSessao) {
+                        $("buildMsg").textContent =
+                            "Não foi possível atualizar a confirmação da licença. Verifique sua conexão.";
+                    }
+                } finally {
+                    if (versaoAtual === versaoSessao) validacaoLicencaEmAndamento = false;
+                }
+            }
+
+            async function confirmarLicencaAntesDaBuild(callback) {
+                if (!sessaoLicencaValida || !codigoSessaoAtiva) {
+                    bloquearSessao("Sua sessão não está validada. Entre novamente.");
+                    return;
+                }
+                if (validacaoLicencaEmAndamento) {
+                    $("buildMsg").textContent = "Aguarde a confirmação da licença e tente novamente.";
+                    return;
+                }
+
+                const versaoAtual = versaoSessao;
+                validacaoLicencaEmAndamento = true;
+                $("buildMsg").textContent = "Confirmando licença...";
+                try {
+                    const devId = DEVICE_ID || obterIdentificadorAparelho();
+                    const dados = await chamarServidor(codigoSessaoAtiva, devId);
+                    if (versaoAtual !== versaoSessao) return;
+                    if (dados.autorizado !== true) {
+                        bloquearSessao(dados.mensagem || "Sua licença não está mais autorizada.");
+                        return;
+                    }
+                    $("buildMsg").textContent = "";
+                    if (sessaoLicencaValida) await callback();
+                } catch (erro) {
+                    if (versaoAtual === versaoSessao) {
+                        $("buildMsg").textContent = erro.message || "Não foi possível confirmar sua licença.";
+                    }
+                } finally {
+                    if (versaoAtual === versaoSessao) validacaoLicencaEmAndamento = false;
+                }
+            }
+
+            /* SEGURANÇA DE TEXTO */
+            function esc(value) {
+                return String(value ?? "").replace(
+                    /[&<>"']/g,
+                    (char) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#39;",
+                        })[char]
+                );
+            }
+
+            /* BUSCA DE CAMPEÕES */
+            function normalizeName(value) {
+                return String(value || "")
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .trim();
+            }
+
+            function attachAutocomplete(input, dropdown) {
+                let selected = -1;
+                let results = [];
+
+                function close() {
+                    dropdown.classList.remove("show");
+                    selected = -1;
+                }
+
+                function choose(name) {
+                    input.value = name;
+                    close();
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+
+                function renderSuggestions() {
+                    const query = normalizeName(input.value);
+                    selected = -1;
+                    if (!query) {
+                        dropdown.innerHTML = "";
+                        close();
+                        return;
+                    }
+
+                    results = CHAMPIONS.filter((name) => normalizeName(name).includes(query));
+                    if (!results.length) {
+                        dropdown.innerHTML = '<div class="no-results">Nenhum campeão encontrado.</div>';
+                        dropdown.classList.add("show");
+                        return;
+                    }
+
+                    dropdown.innerHTML = results
+                        .map(
+                            (name, index) =>
+                                '<button type="button" class="suggestion" data-index="' +
+                                index +
+                                '">' +
+                                esc(name) +
+                                "</button>"
+                        )
+                        .join("");
+                    dropdown.classList.add("show");
+                }
+
+                input.addEventListener("input", renderSuggestions);
+                input.addEventListener("focus", renderSuggestions);
+                input.addEventListener("keydown", (event) => {
+                    const buttons = dropdown.querySelectorAll(".suggestion");
+                    if (!dropdown.classList.contains("show")) return;
+
+                    if (event.key === "ArrowDown") {
+                        event.preventDefault();
+                        selected = Math.min(selected + 1, buttons.length - 1);
+                    } else if (event.key === "ArrowUp") {
+                        event.preventDefault();
+                        selected = Math.max(selected - 1, 0);
+                    } else if (event.key === "Enter") {
+                        if (selected >= 0 && results[selected]) {
+                            event.preventDefault();
+                            choose(results[selected]);
+                        }
+                    } else if (event.key === "Escape") {
+                        close();
+                    }
+
+                    buttons.forEach((button, index) => button.classList.toggle("active", index === selected));
+                    if (buttons[selected]) buttons[selected].scrollIntoView({ block: "nearest" });
+                });
+
+                dropdown.addEventListener("pointerdown", (event) => {
+                    const button = event.target.closest(".suggestion");
+                    if (!button) return;
+                    event.preventDefault();
+                    const index = Number(button.dataset.index);
+                    if (results[index]) choose(results[index]);
+                });
+
+                input.addEventListener("blur", () => setTimeout(close, 180));
+                return { choose, close };
+            }
+
+            /* INICIALIZAÇÃO DAS BUSCAS */
+            attachAutocomplete($("champSearch"), $("champSuggestions"));
+            const enemyInputs = [];
+
+            for (let i = 0; i < 5; i++) {
+                const div = document.createElement("div");
+                div.className = "enemy slotbox";
+                div.innerHTML =
+                    '<label for="enemy' +
+                    (i + 1) +
+                    '">INIMIGO ' +
+                    (i + 1) +
+                    "</label>" +
+                    '<div class="autocomplete">' +
+                    '<input id="enemy' +
+                    (i + 1) +
+                    '" placeholder="Buscar campeão..." autocomplete="off" spellcheck="false">' +
+                    '<div class="suggestions"></div></div>';
+                $("enemySlots").appendChild(div);
+                const input = div.querySelector("input");
+                const dropdown = div.querySelector(".suggestions");
+                attachAutocomplete(input, dropdown);
+                enemyInputs.push(input);
+            }
+
+            /* LOGIN */
+            async function entrar() {
+                const codigo = $("code").value.trim();
+                if (!codigo) {
+                    $("loginMsg").textContent = "Digite seu código.";
+                    $("code").focus();
+                    return;
+                }
+
+                if (!DEVICE_ID) {
+                    DEVICE_ID = obterIdentificadorAparelho();
+                }
+
+                if (!DEVICE_ID) {
+                    $("loginMsg").textContent =
+                        "Não foi possível identificar este aparelho. Abra o aplicativo em uma conexão segura e verifique o armazenamento do navegador.";
+                    return;
+                }
+
+                const botao = $("loginBtn");
+                botao.disabled = true;
+                $("loginMsg").textContent = "Validando assinatura...";
+                try {
+                    const dados = await chamarServidor(codigo, DEVICE_ID);
+                    if (dados.autorizado !== true) {
+                        $("loginMsg").textContent = dados.mensagem || "Código não autorizado.";
+                        return;
+                    }
+
+                    codigoSessaoAtiva = codigo;
+sessaoLicencaValida = true;
+
+if (
+    window.WRBolha &&
+    typeof window.WRBolha.atualizarExpiracao === "function"
+) {
+    window.WRBolha.atualizarExpiracao(
+        dados.dataExpiracao || "Assinatura validada"
+    );
+}
+                    if (window.WRBolha && typeof window.WRBolha.mostrarBolha === "function") {
+    window.WRBolha.mostrarBolha();
+}
+                    bloqueioEmAndamento = false;
+                    validacaoLicencaEmAndamento = false;
+                    versaoSessao++;
+
+                    $("login").classList.add("hidden");
+                    $("app").classList.remove("hidden");
+                    $("expiry").textContent = dados.dataExpiracao
+                        ? "Expira em: " + dados.dataExpiracao
+                        : "Assinatura validada";
+                    $("loginMsg").textContent = "";
+                    iniciarMonitoramentoLicenca();
+                } catch (erro) {
+                    console.error("Erro no login:", erro);
+                    $("loginMsg").textContent = erro.message || "Falha ao validar assinatura.";
+                } finally {
+                    botao.disabled = false;
+                }
+            }
+
+            function inicializarEventosLogin() {
+                const btnLogin = $("loginBtn");
+                const inputCode = $("code");
+
+                if (btnLogin) {
+                    btnLogin.onclick = entrar;
+                }
+                if (inputCode) {
+                    inputCode.onkeydown = function (event) {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            entrar();
+                        }
+                    };
+                }
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", inicializarEventosLogin);
+            } else {
+                inicializarEventosLogin();
+            }
+
+            function atualizarBolhaSeNecessario() {
+    if (
+        sessaoLicencaValida &&
+        window.WRBolha &&
+        typeof window.WRBolha.mostrarBolha === "function"
+    ) {
+        window.WRBolha.mostrarBolha();
+    }
+}
+
+window.addEventListener("focus", () => {
+    if (sessaoLicencaValida) {
+        atualizarBolhaSeNecessario();
+        revalidarLicencaNoServidor();
+    }
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && sessaoLicencaValida) {
+        atualizarBolhaSeNecessario();
+        revalidarLicencaNoServidor();
+    }
+});
+            /* CATÁLOGO AUDITADO */
+            const ITEM_NAMES = {
+                boots: [
+                    "Grevas Bélicas",
+                    "Esmagadores Acorrentados",
+                    "Mobilização Blindada",
+                    "Sapatos Enfeitiçados",
+                    "Botas Esmaga-armaduras",
+                    "Lucidez Escarlate",
+                    "Botas Imortais",
+                    "Grevas do Berserker",
+                    "Passos de Mercúrio",
+                    "Botas Galvanizadas",
+                    "Botas de Mana",
+                    "Botas do Dinamismo",
+                    "Botas Ionianas da Lucidez",
+                    "Grevas Gulosas",
+                    "Botas da Velocidade",
+                ],
+                defense: [
+                    "Proteção de Amarantho",
+                    "Manopla dos Glacinatas",
+                    "Desespero Eterno",
+                    "Égide de Fogo Solar",
+                    "Placa Gargolítica",
+                    "Armadura de Warmog",
+                    "Armadura de Espinhos",
+                    "Resplendor Vazio",
+                    "Presságio de Randuin",
+                    "Couraça do Defunto",
+                    "Força da Natureza",
+                    "Coração de Aço",
+                    "Rookern Caênico",
+                    "Manto da Alvorada",
+                    "Virtude Radiante",
+                    "Aproximação Invernal",
+                    "Coração Congelado",
+                    "Manto da Décima Segunda Hora",
+                    "Medalhão dos Solari de Ferro",
+                    "Juramento do Cavaleiro",
+                    "Convergência de Zeke",
+                    "Armadilha de Yordle",
+                    "Máscara Abissal",
+                    "Brasa de Bami",
+                    "Punho de Jaurim",
+                    "Capuz do Espectro",
+                    "Armadura do Vigia",
+                    "Sudário Glacial",
+                    "Cinto do Gigante",
+                    "Colete Espinhoso",
+                    "Cota de Malha",
+                    "Capa Negatron",
+                    "Placa Lunar Alada",
+                    "Armadura de Pano",
+                    "Manto Anula-Magia",
+                ],
+                magic: [
+                    "Capuz da Morte de Rabadon",
+                    "Ampulheta de Zhonya",
+                    "Orbe do Infinito",
+                    "Criafendas",
+                    "Aurora e Crepúsculo",
+                    "Tormento de Liandry",
+                    "Cajado do Arcanjo",
+                    "Cajado do Vazio",
+                    "Ímpeto Cósmico",
+                    "Véu da Banshee",
+                    "Criptoflora",
+                    "Maldição Sanguinária",
+                    "Perdição de Lich",
+                    "Eco de Luden",
+                    "Ápice da Tempestade",
+                    "Tocha de Chamas Negras",
+                    "Cetro de Cristal de Rylai",
+                    "Bastão das Eras",
+                    "Foco do Horizonte",
+                    "Malevolência",
+                    "Explocinturão Hextec",
+                    "Morellonomicon",
+                    "Mandato Imperial",
+                    "Tridente das Oceânides",
+                    "Redenção",
+                    "Circlete Sussurrante",
+                    "Ladrão de Almas de Mejai",
+                    "Dente de Na'Shor",
+                    "Barreira Verdejante",
+                    "Bastão Desnecessariamente Grande",
+                    "Armaguarda da Caçadora",
+                    "Máscara Assustadora",
+                    "Capítulo Perdido",
+                    "Catalisador das Eras",
+                    "Alternador Hextec",
+                    "A Ametista do Vazio",
+                    "Gema Ardente",
+                    "Centelha Etérea",
+                    "Códex Demoníaco",
+                    "Cinzas do Destino",
+                    "Orbe do Esquecimento",
+                    "Espelho de Vidro de Bandópolis",
+                    "Varinha Explosiva",
+                    "Ídolo Proibido",
+                    "Tomo Amplificador",
+                    "Cristal de Rubi",
+                    "Anel da Revelação",
+                ],
+                physical: [
+                    "Gume do Infinito",
+                    "Força da Trindade",
+                    "Dança da Morte",
+                    "Ruptor Divino",
+                    "Lembranças de Dominik",
+                    "A Sedenta por Sangue",
+                    "Anjo Guardião",
+                    "Sinal de Sterak",
+                    "Armadura de Sangue do Soberano",
+                    "Espada do Rei Destruído",
+                    "Rancor de Serylda",
+                    "Lança de Shojin",
+                    "Quebrapassos",
+                    "Hemodrenário",
+                    "Força do Vendaval",
+                    "Cimitarra Mercurial",
+                    "Quebracascos",
+                    "Limiar da Noite",
+                    "Flechas Selvagens de Yun Tal",
+                    "Mandíbula de Malmortius",
+                    "Lembrete Mortal",
+                    "Crepúsculo de Draktharr",
+                    "Colhedor de Essência",
+                    "Arco-escudo Imortal",
+                    "A Coletora",
+                    "Términus",
+                    "Chuva de Canivete",
+                    "Clivador Negro",
+                    "Lâmina da Fúria de Guinsoo",
+                    "Hidra Titânica",
+                    "Hexarmadura Experimental",
+                    "Hexóptica C44",
+                    "Faca de Statikk",
+                    "Lâmina Fantasma de Youmuu",
+                    "Manamune",
+                    "Eclipse",
+                    "Céu Dividido",
+                    "Mata-Cráquens",
+                    "Serrespada Quimiotéc",
+                    "Limite da Razão",
+                    "Presa da Serpente",
+                    "Virotes do Caçador de Demônios",
+                    "Canhão Fumegante",
+                    "Furacão de Runaan",
+                    "Dançarina Fantasma",
+                    "Adagas Rápidas Navori",
+                    "Espada G.P.C.",
+                    "Dardos de Caça-Demônios",
+                    "Flechatroz de Yun Tal",
+                    "Zelo",
+                    "Aljava Vespertina",
+                    "Martelo de Guerra de Caulfield",
+                    "Machado Adaga",
+                    "Cetro Vampírico",
+                    "Último Sussurro",
+                    "Hexdrinker",
+                    "Bandana de Mercúrio",
+                    "Punhal Serrilhado",
+                    "Fava de Cobiça",
+                    "Arco Recurvo",
+                    "Fulgor",
+                    "Chamado do Carrasco",
+                    "Caco de Kircheis",
+                    "Picareta",
+                    "Espada Longa",
+                    "Luvas do Pugilista",
+                    "Gota da Deusa",
+                    "Adaga",
+                ],
+                support: [
+                    "Eco Harmônico",
+                    "Hino Bélico de Shurelya",
+                    "Bênção de Mikael",
+                    "Cajado Aquafluxo",
+                    "Ecos de Helia",
+                    "Turíbulo Ardente",
+                    "Baluarte da Montanha",
+                    "Foice da Névoa Negra",
+                    "Diadema das Canções",
+                    "Abraço de Seraph",
+                    "Muramana",
+                    "Fimbulwinter",
+                    "Escudo Relíquia",
+                    "Foice Espectral",
+                ],
+            };
+            const ALL_ITEM_NAMES = [
+                ...ITEM_NAMES.boots,
+                ...ITEM_NAMES.defense,
+                ...ITEM_NAMES.magic,
+                ...ITEM_NAMES.physical,
+                ...ITEM_NAMES.support,
+            ];
+            const ITEM_COMPONENTS = new Set([
+                "Brasa de Bami",
+                "Punho de Jaurim",
+                "Capuz do Espectro",
+                "Armadura do Vigia",
+                "Sudário Glacial",
+                "Cinto do Gigante",
+                "Colete Espinhoso",
+                "Cota de Malha",
+                "Capa Negatron",
+                "Placa Lunar Alada",
+                "Armadura de Pano",
+                "Manto Anula-Magia",
+                "Barreira Verdejante",
+                "Bastão Desnecessariamente Grande",
+                "Armaguarda da Caçadora",
+                "Máscara Assustadora",
+                "Capítulo Perdido",
+                "Catalisador das Eras",
+                "Alternador Hextec",
+                "A Ametista do Vazio",
+                "Gema Ardente",
+                "Centelha Etérea",
+                "Códex Demoníaco",
+                "Cinzas do Destino",
+                "Orbe do Esquecimento",
+                "Espelho de Vidro de Bandópolis",
+                "Varinha Explosiva",
+                "Ídolo Proibido",
+                "Tomo Amplificador",
+                "Cristal de Rubi",
+                "Anel da Revelação",
+                "Espada G.P.C.",
+                "Zelo",
+                "Aljava Vespertina",
+                "Martelo de Guerra de Caulfield",
+                "Machado Adaga",
+                "Cetro Vampírico",
+                "Último Sussurro",
+                "Hexdrinker",
+                "Bandana de Mercúrio",
+                "Punhal Serrilhado",
+                "Fava de Cobiça",
+                "Arco Recurvo",
+                "Fulgor",
+                "Chamado do Carrasco",
+                "Caco de Kircheis",
+                "Picareta",
+                "Espada Longa",
+                "Luvas do Pugilista",
+                "Gota da Deusa",
+                "Adaga",
+                "Escudo Relíquia",
+                "Foice Espectral",
+                "Foice da Névoa Negra",
+            ]);
+            const ALL_ITEMS = ALL_ITEM_NAMES.map((name) => ({
+                name,
+                category: ITEM_NAMES.boots.includes(name)
+                    ? "BOTAS"
+                    : ITEM_NAMES.defense.includes(name)
+                      ? "DEFESA"
+                      : ITEM_NAMES.magic.includes(name)
+                        ? "PODER MÁGICO"
+                        : ITEM_NAMES.physical.includes(name)
+                          ? "ATAQUE FÍSICO"
+                          : "SUPORTE",
+                complete: !ITEM_COMPONENTS.has(name),
+            }));
+
+            const makeItems = (names) =>
+                names
+                    .filter((name) => ALL_ITEMS.some((item) => item.name === name && item.complete))
+                    .map((name) => ({ name, reason: "Item compatível com o perfil do campeão." }));
+
+            const AD_ITEMS = makeItems(ITEM_NAMES.physical);
+            const AP_ITEMS = makeItems(ITEM_NAMES.magic);
+            const TANK_ITEMS = makeItems(ITEM_NAMES.defense);
+            const SUPPORT_ITEMS = makeItems(ITEM_NAMES.support);
+
+            /* ARQUÉTIPOS DE SUPORTE DETALHADOS E REVISÃO DE YUUMI / ENCANTADORES */
+            const ENCHANTER_SUPPORTS = [
+                "Janna",
+                "Karma",
+                "Lulu",
+                "Milio",
+                "Nami",
+                "Sona",
+                "Soraka",
+                "Yuumi",
+                "Seraphine",
+            ];
+            const TANK_SUPPORTS = [
+                "Alistar",
+                "Blitzcrank",
+                "Braum",
+                "Leona",
+                "Nautilus",
+                "Rell",
+                "Thresh",
+                "Rakan",
+                "Maokai",
+                "Ornn",
+                "Poppy",
+            ];
+            const UTILITY_HEAL_SUPPORTS = ["Yuumi", "Soraka", "Sona", "Nami", "Milio", "Janna", "Lulu"];
+            const SUPPORT_CHAMPIONS = [
+                "Alistar",
+                "Bard",
+                "Blitzcrank",
+                "Braum",
+                "Janna",
+                "Karma",
+                "Leona",
+                "Lulu",
+                "Milio",
+                "Morgana",
+                "Nami",
+                "Nautilus",
+                "Pyke",
+                "Rakan",
+                "Rell",
+                "Senna",
+                "Seraphine",
+                "Sona",
+                "Soraka",
+                "Thresh",
+                "Yuumi",
+            ];
+
+            const AP_FIGHTERS = [
+                "Akali",
+                "Diana",
+                "Ekko",
+                "Gwen",
+                "Gragas",
+                "Kassadin",
+                "Katarina",
+                "Mordekaiser",
+                "Rumble",
+                "Shyvana",
+                "Singed",
+                "Sylas",
+                "Volibear",
+            ];
+            const AP_CHAMPIONS = [
+                "Ahri",
+                "Akali",
+                "Annie",
+                "Aurelion Sol",
+                "Aurora",
+                "Brand",
+                "Diana",
+                "Ekko",
+                "Evelynn",
+                "Fizz",
+                "Gragas",
+                "Hwei",
+                "Gwen",
+                "Heimerdinger",
+                "Karma",
+                "Kassadin",
+                "Katarina",
+                "Kayle",
+                "Kennen",
+                "Lillia",
+                "Lissandra",
+                "Lux",
+                "Mel",
+                "Morgana",
+                "Nidalee",
+                "Orianna",
+                "Rumble",
+                "Ryze",
+                "Seraphine",
+                "Singed",
+                "Swain",
+                "Syndra",
+                "Taliyah",
+                "Teemo",
+                "Fiddlesticks",
+                "Mordekaiser",
+                "Norra",
+                "Bard",
+                "Janna",
+                "Lulu",
+                "Milio",
+                "Nami",
+                "Sona",
+                "Soraka",
+                "Yuumi",
+                "Twisted Fate",
+                "Veigar",
+                "Vel'Koz",
+                "Vex",
+                "Viktor",
+                "Vladimir",
+                "Ziggs",
+                "Zilean",
+                "Zoe",
+                "Zyra",
+                "Shyvana",
+            ];
+            const TANK_CHAMPIONS = [
+                "Alistar",
+                "Amumu",
+                "Blitzcrank",
+                "Braum",
+                "Cho'Gath",
+                "Galio",
+                "Leona",
+                "Malphite",
+                "Maokai",
+                "Nautilus",
+                "Ornn",
+                "Rammus",
+                "Rell",
+                "Shen",
+                "Sion",
+                "Thresh",
+                "K'Sante",
+                "Poppy",
+                "Nunu e Willump",
+                "Skarner",
+                "Rakan",
+            ];
+            const ASSASSIN_CHAMPIONS = [
+                "Akali",
+                "Ekko",
+                "Evelynn",
+                "Fizz",
+                "Kassadin",
+                "Katarina",
+                "Kayn",
+                "Kha'Zix",
+                "Nocturne",
+                "Pyke",
+                "Rengar",
+                "Talon",
+                "Zed",
+            ];
+            const ATTACK_SPEED_CHAMPIONS = [
+                "Ashe",
+                "Caitlyn",
+                "Draven",
+                "Jinx",
+                "Kalista",
+                "Kai'Sa",
+                "Kindred",
+                "Kog'Maw",
+                "Lucian",
+                "Master Yi",
+                "Tristana",
+                "Tryndamere",
+                "Twitch",
+                "Vayne",
+                "Yasuo",
+                "Yone",
+                "Zeri",
+                "Yunara",
+            ];
+            const CC_CHAMPIONS = [
+                "Alistar",
+                "Amumu",
+                "Annie",
+                "Ashe",
+                "Bard",
+                "Blitzcrank",
+                "Braum",
+                "Galio",
+                "Janna",
+                "Jarvan IV",
+                "Leona",
+                "Lissandra",
+                "Malphite",
+                "Maokai",
+                "Morgana",
+                "Nautilus",
+                "Ornn",
+                "Rakan",
+                "Rell",
+                "Seraphine",
+                "Sett",
+                "Sona",
+                "Swain",
+                "Thresh",
+                "Veigar",
+                "Vi",
+                "Zyra",
+            ];
+            const HEALING_CHAMPIONS = [
+                "Aatrox",
+                "Dr. Mundo",
+                "Fiora",
+                "Nasus",
+                "Olaf",
+                "Samira",
+                "Soraka",
+                "Swain",
+                "Vladimir",
+                "Warwick",
+                "Yuumi",
+                "Volibear",
+            ];
+            const SHIELD_CHAMPIONS = [
+                "Janna",
+                "Karma",
+                "Lulu",
+                "Milio",
+                "Morgana",
+                "Seraphine",
+                "Sett",
+                "Shen",
+                "Sona",
+                "Yuumi",
+            ];
+            const CRIT_CHAMPIONS = [
+                "Ashe",
+                "Caitlyn",
+                "Draven",
+                "Jhin",
+                "Jinx",
+                "Lucian",
+                "Miss Fortune",
+                "Samira",
+                "Sivir",
+                "Tristana",
+                "Tryndamere",
+                "Twitch",
+                "Yasuo",
+                "Yone",
+                "Zeri",
+                "Yunara",
+            ];
+            const BURST_CHAMPIONS = [
+                "Akali",
+                "Annie",
+                "Diana",
+                "Ekko",
+                "Evelynn",
+                "Fizz",
+                "Kassadin",
+                "Katarina",
+                "Kha'Zix",
+                "Rengar",
+                "Talon",
+                "Veigar",
+                "Vex",
+                "Zed",
+            ];
+
+            /* ITEM CORE INDIVIDUAL DE CADA CAMPEÃO */
+            const CHAMPION_CORE_ITEMS = {
+                Aatrox: "Lança de Shojin",
+                Ambessa: "Lança de Shojin",
+                Camille: "Lança de Shojin",
+                Darius: "Lança de Shojin",
+                Fiora: "Dança da Morte",
+                Garen: "Lança de Shojin",
+                Gnar: "Lança de Shojin",
+                Hecarim: "Lança de Shojin",
+                Irelia: "Lança de Shojin",
+                "Jarvan IV": "Lança de Shojin",
+                "Lee Sin": "Lança de Shojin",
+                Pantheon: "Lança de Shojin",
+                Renekton: "Lança de Shojin",
+                Riven: "Dança da Morte",
+                Sett: "Lança de Shojin",
+                Vi: "Lança de Shojin",
+                Wukong: "Lança de Shojin",
+                "Xin Zhao": "Lança de Shojin",
+                Viego: "Lança de Shojin",
+                Volibear: "Armadura de Espinhos",
+                Warwick: "Lança de Shojin",
+                Akshan: "Espada do Rei Destruído",
+                "Dr. Mundo": "Armadura de Espinhos",
+                Ezreal: "Espada do Rei Destruído",
+                Graves: "Espada do Rei Destruído",
+                Jax: "Espada do Rei Destruído",
+                Kayn: "Espada do Rei Destruído",
+                "Kog'Maw": "Espada do Rei Destruído",
+                "Master Yi": "Términus",
+                Nasus: "Espada do Rei Destruído",
+                Olaf: "Espada do Rei Destruído",
+                Shyvana: "Cajado do Vazio",
+                Tryndamere: "Espada do Rei Destruído",
+                Twitch: "Dançarina Fantasma",
+                Urgot: "Espada do Rei Destruído",
+                Varus: "Espada do Rei Destruído",
+                Vayne: "Espada do Rei Destruído",
+                Yone: "Espada do Rei Destruído",
+                Yasuo: "Espada do Rei Destruído",
+                Yunara: "Espada do Rei Destruído",
+                Zeri: "Dançarina Fantasma",
+                Kalista: "Espada do Rei Destruído",
+                "Kai'Sa": "Espada do Rei Destruído",
+                Lucian: "Mandíbula de Malmortius",
+                Nilah: "Espada do Rei Destruído",
+                Nocturne: "Espada do Rei Destruído",
+                Smolder: "Espada do Rei Destruído",
+                Caitlyn: "Gume do Infinito",
+                Draven: "Gume do Infinito",
+                Jhin: "Gume do Infinito",
+                Jinx: "Gume do Infinito",
+                "Miss Fortune": "Gume do Infinito",
+                Samira: "Gume do Infinito",
+                Senna: "Presa da Serpente",
+                Sivir: "Gume do Infinito",
+                Tristana: "Gume do Infinito",
+                Xayah: "Gume do Infinito",
+                Ashe: "Dançarina Fantasma",
+                Kindred: "Dançarina Fantasma",
+                Talon: "Clivador Negro",
+                "Cho'Gath": "Rookern Caênico",
+                Jayce: "Clivador Negro",
+                Rumble: "Cajado do Vazio",
+                Sion: "Rookern Caênico",
+                Skarner: "Égide de Fogo Solar",
+                Singed: "Cetro de Cristal de Rylai",
+                Corki: "Términus",
+                Kennen: "Cajado do Vazio",
+                Teemo: "Cajado do Vazio",
+                Fiddlesticks: "Capuz da Morte de Rabadon",
+                "Kha'Zix": "Espada do Rei Destruído",
+                Rengar: "Anjo Guardião",
+                Zed: "Anjo Guardião",
+                Pyke: "Presa da Serpente",
+                Ahri: "Orbe do Infinito",
+                Akali: "Orbe do Infinito",
+                Diana: "Orbe do Infinito",
+                Ekko: "Orbe do Infinito",
+                Evelynn: "Orbe do Infinito",
+                Fizz: "Orbe do Infinito",
+                Kassadin: "Orbe do Infinito",
+                Katarina: "Orbe do Infinito",
+                Mel: "Orbe do Infinito",
+                Vex: "Orbe do Infinito",
+                Zoe: "Criptoflora",
+                Annie: "Capuz da Morte de Rabadon",
+                "Aurelion Sol": "Capuz da Morte de Rabadon",
+                Aurora: "Capuz da Morte de Rabadon",
+                Brand: "Morellonomicon",
+                Heimerdinger: "Capuz da Morte de Rabadon",
+                Lux: "Capuz da Morte de Rabadon",
+                Orianna: "Capuz da Morte de Rabadon",
+                Syndra: "Capuz da Morte de Rabadon",
+                Veigar: "Capuz da Morte de Rabadon",
+                "Vel'Koz": "Capuz da Morte de Rabadon",
+                Viktor: "Capuz da Morte de Rabadon",
+                Ziggs: "Capuz da Morte de Rabadon",
+                Zilean: "Capuz da Morte de Rabadon",
+                Zyra: "Morellonomicon",
+                "Twisted Fate": "Capuz da Morte de Rabadon",
+                Taliyah: "Capuz da Morte de Rabadon",
+                Gragas: "Cajado do Vazio",
+                Gwen: "Cajado do Vazio",
+                Lillia: "Cajado do Vazio",
+                Nidalee: "Cajado do Vazio",
+                Ryze: "Cajado do Vazio",
+                Vladimir: "Cajado do Vazio",
+                Morgana: "Morellonomicon",
+                Seraphine: "Eco Harmônico",
+                Swain: "Morellonomicon",
+                Karma: "Mandato Imperial",
+                Lissandra: "Cetro de Cristal de Rylai",
+                Hwei: "Tocha de Chamas Negras",
+                Milio: "Cajado Aquafluxo",
+                Nami: "Cajado Aquafluxo",
+                Soraka: "Eco Harmônico",
+                Alistar: "Armadura de Warmog",
+                Amumu: "Égide de Fogo Solar",
+                Blitzcrank: "Coração Congelado",
+                Braum: "Armadura de Warmog",
+                Leona: "Coração Congelado",
+                Maokai: "Força da Natureza",
+                Nautilus: "Armadura de Warmog",
+                Ornn: "Força da Natureza",
+                Rell: "Armadura de Warmog",
+                Thresh: "Égide de Fogo Solar",
+                "K'Sante": "Égide de Fogo Solar",
+                Poppy: "Coração Congelado",
+                "Nunu e Willump": "Coração Congelado",
+                Rammus: "Presságio de Randuin",
+                Malphite: "Presságio de Randuin",
+                Shen: "Presságio de Randuin",
+                Galio: "Rookern Caênico",
+                Bard: "Mandato Imperial",
+                Janna: "Eco Harmônico",
+                Kayle: "Capuz da Morte de Rabadon",
+                Lulu: "Turíbulo Ardente",
+                Mordekaiser: "Cetro de Cristal de Rylai",
+                Norra: "Orbe do Infinito",
+                Rakan: "Armadura de Warmog",
+                Sona: "Eco Harmônico",
+                Yuumi: "Eco Harmônico",
+            };
+
+            /* ========================================================================
+            WR BUILD ASSIST — INTELLIGENCE ENGINE 2.0 (SISTEMA AVANÇADO DE CURA E ESCUDOS)
+            ======================================================================== */
+            const WRBA_ENGINE_VERSION = "2.3.0";
+            const WRBA_PATCH = "7.3e";
+            const WRBA_DATA_SOURCES = Object.freeze({
+                officialPatch: "https://wildrift.leagueoflegends.com/pt-br/news/game-updates/",
+                exclusivityReference: "https://wildrift.leagueoflegends.com/en-sg/news/game-updates/wild-rift-patch-notes-70/",
+                currentBalanceReference: "https://wildrift.leagueoflegends.com/en-us/news/game-updates/",
+                dataStatus: "Patch 7.3e; balanceamento de Summoner's Rift confirmado até 7.3d. Regras de exclusividade verificadas nas notas oficiais 7.0.",
+                verifiedAt: "2026-11-08"
+            });
+            const WRBA_ITEM_AUDIT = Object.freeze({
+                totalEntries: ALL_ITEM_NAMES.length,
+                uniqueEntries: new Set(ALL_ITEM_NAMES).size,
+                components: ITEM_COMPONENTS.size,
+                complete: ALL_ITEMS.filter((x) => x.complete).length,
+                note: "O catálogo de nomes não substitui a auditoria oficial de atributos e efeitos de cada item.",
+            });
+
+            const WRBA_HYBRID_CHAMPIONS = new Set([
+                "Corki",
+                "Ezreal",
+                "Jax",
+                "Kai'Sa",
+                "Kayle",
+                "Kog'Maw",
+                "Nidalee",
+                "Shyvana",
+                "Varus",
+                "Volibear",
+                "Yone",
+            ]);
+            const WRBA_DAMAGE_MIX = {
+                Akshan: { physical: 0.82, magic: 0.18 },
+                Corki: { physical: 0.55, magic: 0.45 },
+                Ezreal: { physical: 0.76, magic: 0.24 },
+                Jax: { physical: 0.76, magic: 0.24 },
+                "Kai'Sa": { physical: 0.58, magic: 0.42 },
+                Kayle: { physical: 0.62, magic: 0.38 },
+                "Kog'Maw": { physical: 0.58, magic: 0.42 },
+                Shyvana: { physical: 0.6, magic: 0.4 },
+                Varus: { physical: 0.68, magic: 0.32 },
+                Yone: { physical: 0.72, magic: 0.28 },
+                Volibear: { physical: 0.55, magic: 0.45 },
+                Galio: { physical: 0.18, magic: 0.82 },
+                Diana: { physical: 0.18, magic: 0.82 },
+                Gwen: { physical: 0.12, magic: 0.88 },
+                Katarina: { physical: 0.12, magic: 0.88 },
+                Kennen: { physical: 0.12, magic: 0.88 },
+                Mordekaiser: { physical: 0.12, magic: 0.88 },
+                Nidalee: { physical: 0.35, magic: 0.65 },
+                "Twisted Fate": { physical: 0.22, magic: 0.78 },
+                Bard: { physical: 0.18, magic: 0.82 },
+                Janna: { physical: 0.08, magic: 0.92 },
+                Karma: { physical: 0.08, magic: 0.92 },
+                Lulu: { physical: 0.08, magic: 0.92 },
+                Milio: { physical: 0.08, magic: 0.92 },
+                Nami: { physical: 0.08, magic: 0.92 },
+                Rakan: { physical: 0.22, magic: 0.78 },
+                Seraphine: { physical: 0.08, magic: 0.92 },
+                Sona: { physical: 0.08, magic: 0.92 },
+                Soraka: { physical: 0.08, magic: 0.92 },
+                Yuumi: { physical: 0.08, magic: 0.92 },
+            };
+            const WRBA_TRUE_DAMAGE = new Set([
+                "Camille",
+                "Cho'Gath",
+                "Darius",
+                "Fiora",
+                "Garen",
+                "Master Yi",
+                "Olaf",
+                "Vayne",
+                "Vel'Koz",
+                "Ahri",
+            ]);
+
+            /* BASE DE MECÂNICAS INDIVIDUAIS DE SOBREVIVÊNCIA (CURA, ESCUDO E PROTEÇÃO) */
+            const WRBA_SURVIVAL_DB = {
+                Aatrox: {
+                    healPower: 3,
+                    shieldPower: 0,
+                    protectionPower: 1,
+                    tags: ["self_heal", "vamp", "ultimate_heal"],
+                },
+                "Dr. Mundo": {
+                    healPower: 3,
+                    shieldPower: 0,
+                    protectionPower: 2,
+                    tags: ["regen", "self_heal", "ultimate_heal"],
+                },
+                Soraka: {
+                    healPower: 4,
+                    shieldPower: 0,
+                    protectionPower: 1,
+                    tags: ["ally_heal", "global_heal", "recurrent_heal"],
+                },
+                Yuumi: {
+                    healPower: 3,
+                    shieldPower: 2,
+                    protectionPower: 2,
+                    tags: ["ally_heal", "recurrent_shield", "untargetable"],
+                },
+                Warwick: { healPower: 3, shieldPower: 0, protectionPower: 1, tags: ["self_heal", "low_hp_heal"] },
+                Vladimir: {
+                    healPower: 3,
+                    shieldPower: 0,
+                    protectionPower: 1,
+                    tags: ["self_heal", "aoe_heal", "pool_untarget"],
+                },
+                Swain: { healPower: 2, shieldPower: 0, protectionPower: 1, tags: ["drain_heal", "ultimate_heal"] },
+                Nami: { healPower: 2, shieldPower: 0, protectionPower: 0, tags: ["ally_heal", "bounce_heal"] },
+                Sona: { healPower: 2, shieldPower: 2, protectionPower: 1, tags: ["ally_heal", "aoe_shield"] },
+                Milio: {
+                    healPower: 2,
+                    shieldPower: 2,
+                    protectionPower: 1,
+                    tags: ["ally_heal", "aoe_shield", "cleanse"],
+                },
+                Taric: { healPower: 2, shieldPower: 1, protectionPower: 4, tags: ["ally_heal", "invulnerability"] },
+                Kayle: { healPower: 1, shieldPower: 0, protectionPower: 4, tags: ["ally_heal", "invulnerability"] },
+                Lulu: {
+                    healPower: 1,
+                    shieldPower: 4,
+                    protectionPower: 3,
+                    tags: ["recurrent_shield", "hp_buff", "ally_protect"],
+                },
+                Janna: {
+                    healPower: 2,
+                    shieldPower: 3,
+                    protectionPower: 2,
+                    tags: ["aoe_heal", "recurrent_shield", "knockback"],
+                },
+                Karma: { healPower: 1, shieldPower: 3, protectionPower: 1, tags: ["aoe_shield", "move_buff"] },
+                Seraphine: { healPower: 2, shieldPower: 2, protectionPower: 1, tags: ["aoe_heal", "aoe_shield"] },
+                Shen: { healPower: 0, shieldPower: 3, protectionPower: 3, tags: ["global_shield", "block_attacks"] },
+                Sett: { healPower: 1, shieldPower: 3, protectionPower: 1, tags: ["grit_shield", "regen"] },
+                Sion: { healPower: 0, shieldPower: 2, protectionPower: 1, tags: ["w_shield"] },
+                Garen: { healPower: 2, shieldPower: 1, protectionPower: 2, tags: ["regen", "damage_reduction"] },
+                "Master Yi": {
+                    healPower: 2,
+                    shieldPower: 0,
+                    protectionPower: 2,
+                    tags: ["meditate_heal", "damage_reduction"],
+                },
+                Olaf: { healPower: 3, shieldPower: 0, protectionPower: 1, tags: ["vamp", "cc_immunity"] },
+                Fiora: {
+                    healPower: 3,
+                    shieldPower: 0,
+                    protectionPower: 1,
+                    tags: ["vital_heal", "ult_aoe_heal", "riposte"],
+                },
+                Samira: { healPower: 2, shieldPower: 0, protectionPower: 0, tags: ["vamp"] },
+                Nilah: { healPower: 2, shieldPower: 1, protectionPower: 1, tags: ["vamp", "veil"] },
+                Riven: { healPower: 0, shieldPower: 2, protectionPower: 0, tags: ["dash_shield"] },
+                Lux: { healPower: 0, shieldPower: 3, protectionPower: 0, tags: ["aoe_shield"] },
+                Morgana: { healPower: 1, shieldPower: 2, protectionPower: 2, tags: ["spell_vamp", "black_shield"] },
+                Thresh: { healPower: 0, shieldPower: 2, protectionPower: 1, tags: ["lantern_shield"] },
+                Braum: { healPower: 0, shieldPower: 1, protectionPower: 3, tags: ["shield_wall", "damage_reduction"] },
+                Alistar: {
+                    healPower: 1,
+                    shieldPower: 0,
+                    protectionPower: 4,
+                    tags: ["passive_heal", "ult_damage_reduction"],
+                },
+            };
+
+            const WRBA_MECHANIC_OVERRIDES = {
+                Yuumi: ["heal", "shield", "utility", "enchanter", "protectCarry"],
+                Soraka: ["heal", "peel", "utility", "enchanter"],
+                Janna: ["peel", "shield", "cc", "enchanter"],
+                Lulu: ["shield", "peel", "buff", "enchanter"],
+                Milio: ["heal", "shield", "range", "enchanter"],
+                Nami: ["heal", "cc", "buff", "enchanter"],
+                Sona: ["heal", "shield", "teamBuff", "enchanter"],
+            };
+
+            const CHAMPION_TECHNICAL_DB = Object.freeze(
+                Object.fromEntries(
+                    CHAMPIONS.map((name) => {
+                        const old = championInfoBase(name);
+                        const mix =
+                            WRBA_DAMAGE_MIX[name] ||
+                            (old.damage === "AP"
+                                ? { physical: 0.1, magic: 0.9 }
+                                : old.damage === "HÍBRIDO"
+                                  ? { physical: 0.5, magic: 0.5 }
+                                  : { physical: 0.88, magic: 0.12 });
+                        const mechanics = WRBA_MECHANIC_OVERRIDES[name] || [
+                            old.tank
+                                ? "frontline"
+                                : old.assassin
+                                  ? "assassin"
+                                  : old.marksman
+                                    ? "dps"
+                                    : old.damage === "AP"
+                                      ? "magic"
+                                      : "physical",
+                            ...(old.cc ? ["cc"] : []),
+                            ...(old.onHit ? ["onhit"] : []),
+                            ...(old.healing ? ["sustain"] : []),
+                            ...(old.shield ? ["shield"] : []),
+                        ];
+                        return [
+                            name,
+                            {
+                                name,
+                                role: old.role,
+                                damageClass: mix.physical > 0.65 ? "FÍSICO" : mix.magic > 0.65 ? "MÁGICO" : "MISTO",
+                                physicalWeight: mix.physical,
+                                magicWeight: mix.magic,
+                                range:
+                                    old.marksman || old.role === "MAGO" || old.enchanter
+                                        ? "DISTÂNCIA"
+                                        : "CORPO A CORPO",
+                                tank: old.tank,
+                                assassin: old.assassin,
+                                attackSpeed: old.attackSpeed,
+                                crit: old.crit,
+                                onHit: old.onHit,
+                                cc: old.cc,
+                                healing: old.healing,
+                                shield: old.shield,
+                                burst: old.burst,
+                                trueDamage: WRBA_TRUE_DAMAGE.has(name),
+                                mechanics,
+                                core: CHAMPION_CORE_ITEMS[name] || null,
+                                mechanicsCoverage: WRBA_MECHANIC_OVERRIDES[name] ? "SINAIS CADASTRADOS" : "ARQUÉTIPO",
+                            },
+                        ];
+                    })
+                )
+            );
+
+            function championInfoBase(champion) {
+                const damage = WRBA_HYBRID_CHAMPIONS.has(champion)
+                    ? "HÍBRIDO"
+                    : AP_CHAMPIONS.includes(champion)
+                      ? "AP"
+                      : "AD";
+                const tank = TANK_CHAMPIONS.includes(champion),
+                    support = SUPPORT_CHAMPIONS.includes(champion),
+                    enchanter = ENCHANTER_SUPPORTS.includes(champion);
+                const assassin = ASSASSIN_CHAMPIONS.includes(champion),
+                    marksman =
+                        ATTACK_SPEED_CHAMPIONS.includes(champion) ||
+                        CRIT_CHAMPIONS.includes(champion) ||
+                        ["Kai'Sa", "Corki", "Senna"].includes(champion);
+                const fighterAP = AP_FIGHTERS.includes(champion);
+                const role = enchanter
+                    ? "ENCANTADOR"
+                    : tank
+                      ? "TANQUE"
+                      : support
+                        ? "SUPORTE"
+                        : assassin
+                          ? "ASSASSINO"
+                          : marksman
+                            ? "ATIRADOR"
+                            : fighterAP
+                              ? "LUTADOR AP"
+                              : damage === "AP"
+                                ? "MAGO"
+                                : "LUTADOR";
+                return {
+                    damage,
+                    tank,
+                    support,
+                    enchanter,
+                    assassin,
+                    marksman,
+                    fighterAP,
+                    role,
+                    attackSpeed: ATTACK_SPEED_CHAMPIONS.includes(champion),
+                    cc: CC_CHAMPIONS.includes(champion),
+                    healing: HEALING_CHAMPIONS.includes(champion),
+                    shield: SHIELD_CHAMPIONS.includes(champion),
+                    crit: CRIT_CHAMPIONS.includes(champion),
+                    burst: BURST_CHAMPIONS.includes(champion),
+                    onHit: [
+                        "Kai'Sa",
+                        "Kog'Maw",
+                        "Varus",
+                        "Vayne",
+                        "Master Yi",
+                        "Twitch",
+                        "Kalista",
+                        "Yunara",
+                        "Shyvana",
+                        "Jax",
+                    ].includes(champion),
+                    hybrid: damage === "HÍBRIDO",
+                };
+            }
+
+            function damageType(champion) {
+                return championInfoBase(champion).damage;
+            }
+            function championInfo(champion) {
+                const base = championInfoBase(champion),
+                    tech = CHAMPION_TECHNICAL_DB[champion];
+                if (!tech) return base;
+                return {
+                    ...base,
+                    physicalWeight: tech.physicalWeight,
+                    magicWeight: tech.magicWeight,
+                    mechanics: tech.mechanics,
+                    trueDamage: tech.trueDamage,
+                    mechanicsCoverage: tech.mechanicsCoverage,
+                };
+            }
+            function isTank(champion) {
+                return championInfoBase(champion).tank;
+            }
+
+            function enemyInfo(champion) {
+                const base = championInfo(champion),
+                    tech = CHAMPION_TECHNICAL_DB[champion];
+                const physical = tech ? tech.physicalWeight : 0.5;
+                const magic = tech ? tech.magicWeight : 1 - physical;
+                const patterns = tech ? tech.mechanics.slice() : [];
+                const survival = WRBA_SURVIVAL_DB[champion] || {
+                    healPower: HEALING_CHAMPIONS.includes(champion) ? 2 : 0,
+                    shieldPower: SHIELD_CHAMPIONS.includes(champion) ? 2 : 0,
+                    protectionPower: TANK_CHAMPIONS.includes(champion) ? 2 : 0,
+                    tags: [],
+                };
+
+                return {
+                    name: champion,
+                    physical,
+                    magic,
+                    trueDamage: tech && tech.trueDamage ? 1 : 0,
+                    tank: base.tank,
+                    assassin: base.assassin,
+                    marksman: base.marksman,
+                    enchanter: base.enchanter,
+                    support: base.support,
+                    attackSpeed: base.attackSpeed,
+                    cc: base.cc || patterns.includes("cc"),
+                    healing: base.healing || survival.healPower > 0,
+                    shield: base.shield || survival.shieldPower > 0,
+                    crit: base.crit,
+                    burst: base.burst || patterns.includes("burst") || patterns.includes("assassin"),
+                    ranged: tech ? tech.range === "DISTÂNCIA" : base.marksman || base.role === "MAGO" || base.enchanter,
+                    patterns,
+                    survival,
+                };
+            }
+
+            /* SISTEMA APRIMORADO DE AVALIAÇÃO DE AMEAÇAS (CURA, ESCUDO E PROTEÇÃO) */
+            function analyzeEnemies(enemies) {
+                const individual = enemies.map(enemyInfo);
+
+                let totalHealScore = 0;
+                let totalShieldScore = 0;
+                let totalProtectionScore = 0;
+
+                const healSources = [];
+                const shieldSources = [];
+                const protectionSources = [];
+
+                individual.forEach((e) => {
+                    const s = e.survival;
+                    if (s.healPower > 0) {
+                        totalHealScore += s.healPower;
+                        healSources.push(e.name);
+                    }
+                    if (s.shieldPower > 0) {
+                        totalShieldScore += s.shieldPower;
+                        shieldSources.push(e.name);
+                    }
+                    if (s.protectionPower > 0) {
+                        totalProtectionScore += s.protectionPower;
+                        protectionSources.push(e.name);
+                    }
+                });
+
+                function getLevel(score) {
+                    if (score >= 6) return "CRÍTICA";
+                    if (score >= 4) return "ALTA";
+                    if (score >= 2) return "MODERADA";
+                    return "BAIXA";
+                }
+
+                const healLevel = getLevel(totalHealScore);
+                const shieldLevel = getLevel(totalShieldScore);
+                const protectionLevel = getLevel(totalProtectionScore);
+
+                const threats = {
+                    ad: individual.filter((x) => x.physical >= 0.65).length,
+                    ap: individual.filter((x) => x.magic >= 0.65).length,
+                    mixed: individual.filter((x) => x.physical > 0.25 && x.magic > 0.25).length,
+                    physicalWeight: individual.reduce((s, x) => s + x.physical, 0),
+                    magicWeight: individual.reduce((s, x) => s + x.magic, 0),
+                    tanks: individual.filter((x) => x.tank).length,
+                    assassins: individual.filter((x) => x.assassin).length,
+                    attackSpeed: individual.filter((x) => x.attackSpeed).length,
+                    cc: individual.filter((x) => x.cc).length,
+                    healing: healSources.length,
+                    shields: shieldSources.length,
+                    crit: individual.filter((x) => x.crit).length,
+                    burst: individual.filter((x) => x.burst).length,
+                    trueDamage: individual.filter((x) => x.trueDamage > 0).length,
+                    ranged: individual.filter((x) => x.ranged).length,
+                    healLevel,
+                    shieldLevel,
+                    protectionLevel,
+                    healSources,
+                    shieldSources,
+                    protectionSources,
+                };
+
+                const descriptions = [];
+                if (threats.physicalWeight >= 2.15) descriptions.push("ameaça física relevante");
+                if (threats.magicWeight >= 2.15) descriptions.push("ameaça mágica relevante");
+                if (healLevel === "CRÍTICA" || healLevel === "ALTA")
+                    descriptions.push("alta sustentação/cura (" + healSources.join(", ") + ")");
+                if (shieldLevel === "CRÍTICA" || shieldLevel === "ALTA")
+                    descriptions.push("múltiplos escudos (" + shieldSources.join(", ") + ")");
+                if (protectionLevel === "CRÍTICA" || protectionLevel === "ALTA")
+                    descriptions.push("forte proteção/invulnerabilidade (" + protectionSources.join(", ") + ")");
+
+                return { threats, descriptions, individual };
+            }
+
+            const ITEM_ROLES = {
+                "Eco Harmônico": ["support", "heal", "shield", "apScale"],
+                "Turíbulo Ardente": ["support", "teamAttackSpeed", "shield", "heal"],
+                "Cajado Aquafluxo": ["support", "apScale", "cooldown", "teamUtility"],
+                "Ecos de Helia": ["support", "heal", "damageOverTime"],
+                "Hino Bélico de Shurelya": ["support", "mobility", "teamUtility"],
+                "Bênção de Mikael": ["support", "antiCC", "heal"],
+                Morellonomicon: ["antiHeal", "apScale"],
+                "Lembrete Mortal": ["antiHeal", "armorPen", "crit"],
+                "Serrespada Quimiotéc": ["antiHeal", "adScale", "cooldown"],
+                "Armadura de Espinhos": ["antiHeal", "tank", "antiPhysical"],
+                "Presa da Serpente": ["antiShield", "lethality", "adScale"],
+                "Tridente das Oceânides": ["antiShield", "apScale", "magicBurst"],
+                "Capuz da Morte de Rabadon": ["apScale"],
+                "Orbe do Infinito": ["apScale", "magicBurst"],
+                "Ampulheta de Zhonya": ["apScale", "antiBurst", "antiPhysical"],
+            };
+
+            const CHAMPION_ITEM_RULES = {
+                Yuumi: {
+                    core: ["Eco Harmônico"],
+                    preferred: [
+                        "Cajado Aquafluxo",
+                        "Turíbulo Ardente",
+                        "Ecos de Helia",
+                        "Hino Bélico de Shurelya",
+                        "Bênção de Mikael",
+                    ],
+                    avoid: [
+                        "Capuz da Morte de Rabadon",
+                        "Orbe do Infinito",
+                        "Dente de Na'Shor",
+                        "Criafendas",
+                        "Gume do Infinito",
+                        "Força da Trindade",
+                    ],
+                    style: "Suporte encantadora com foco em fortalecimento, cura e utilidade para o aliado",
+                },
+                Soraka: {
+                    core: ["Eco Harmônico"],
+                    preferred: ["Cajado Aquafluxo", "Bênção de Mikael", "Ecos de Helia", "Turíbulo Ardente"],
+                    avoid: ["Capuz da Morte de Rabadon", "Orbe do Infinito"],
+                },
+                Lulu: {
+                    core: ["Turíbulo Ardente"],
+                    preferred: ["Eco Harmônico", "Cajado Aquafluxo", "Hino Bélico de Shurelya", "Bênção de Mikael"],
+                    avoid: ["Capuz da Morte de Rabadon"],
+                },
+                "Kai'Sa": {
+                    core: ["Espada do Rei Destruído"],
+                    preferred: [
+                        "Términus",
+                        "Lâmina da Fúria de Guinsoo",
+                        "Dente de Na'Shor",
+                        "Lembranças de Dominik",
+                        "Lembrete Mortal",
+                        "Anjo Guardião",
+                    ],
+                    avoid: ["Força da Trindade", "Ruptor Divino", "Lança de Shojin"],
+                },
+            };
+
+            function itemTags(itemName) {
+                return ITEM_ROLES[itemName] || [];
+            }
+
+            /*
+             * CAMADA 2.2 — SINERGIA DOS DOIS CORE E BOTAS CONTEXTUAIS.
+             * Os marcadores abaixo são sinais estratégicos para ranqueamento, não
+             * substituem os atributos oficiais completos de cada item.
+             */
+            const WRBA_CRIT_ITEM_TARGET = Object.freeze({ Yasuo: 2, Yone: 2 });
+
+            const WRBA_SECOND_CORE_OVERRIDES = Object.freeze({
+                Yasuo: "Arco-escudo Imortal",
+                Yone: "Gume do Infinito",
+                Yuumi: "Cajado Aquafluxo",
+                Soraka: "Cajado Aquafluxo",
+                Lulu: "Eco Harmônico",
+                "Kai'Sa": "Términus",
+                Senna: "Gume do Infinito",
+            });
+
+            const WRBA_ITEM_SYNERGY_TAGS = Object.freeze({
+                "Gume do Infinito": ["ad", "crit", "critMultiplier"],
+                "Colhedor de Essência": ["ad", "crit", "cooldown"],
+                "Arco-escudo Imortal": ["ad", "crit", "shield", "sustain"],
+                "Dançarina Fantasma": ["ad", "crit", "attackSpeed"],
+                "Mata-Cráquens": ["ad", "crit", "attackSpeed", "onhit"],
+                "Faca de Statikk": ["ad", "crit", "attackSpeed", "waveclear"],
+                "Chuva de Canivete": ["ad", "crit", "attackSpeed"],
+                "Canhão Fumegante": ["ad", "crit", "attackSpeed", "range"],
+                "Adagas Rápidas Navori": ["ad", "crit", "cooldown"],
+                "Lembrete Mortal": ["ad", "crit", "armorPen", "antiHeal"],
+                "Lembranças de Dominik": ["ad", "crit", "armorPen", "antiTank"],
+                "Espada do Rei Destruído": ["ad", "attackSpeed", "onhit", "sustain", "antiTank"],
+                "Términus": ["ad", "attackSpeed", "onhit", "penetration"],
+                "Lâmina da Fúria de Guinsoo": ["ad", "attackSpeed", "onhit"],
+                "Limite da Razão": ["ad", "attackSpeed", "onhit", "antiMagic"],
+                "Dardos de Caça-Demônios": ["ad", "attackSpeed", "onhit", "antiTank"],
+                "Virotes do Caçador de Demônios": ["ad", "attackSpeed", "onhit", "antiTank"],
+                "Dança da Morte": ["ad", "armor", "antiBurst", "sustain"],
+                "Mandíbula de Malmortius": ["ad", "magicResist", "antiMagic", "antiBurst"],
+                "Lança de Shojin": ["ad", "cooldown", "fighter"],
+                "Clivador Negro": ["ad", "armorPen", "health", "fighter"],
+                "Céu Dividido": ["ad", "sustain", "fighter"],
+                Eclipse: ["ad", "burst", "fighter"],
+                "Força da Trindade": ["ad", "attackSpeed", "cooldown", "spellblade"],
+                "Coração Congelado": ["armor", "antiAttackSpeed", "tank"],
+                "Armadura de Warmog": ["health", "sustain", "tank"],
+                "Rookern Caênico": ["magicResist", "antiMagic", "tank"],
+                "Força da Natureza": ["magicResist", "antiMagic", "tank"],
+                "Armadura de Espinhos": ["armor", "antiHeal", "tank"],
+                "Presságio de Randuin": ["armor", "antiCrit", "tank"],
+                "Égide de Fogo Solar": ["armor", "health", "tank"],
+                "Proteção de Amarantho": ["armor", "magicResist", "tank"],
+                "Manopla dos Glacinatas": ["armor", "health", "tank", "antiAttackSpeed"],
+                "Resplendor Vazio": ["magicResist", "antiMagic", "tank"],
+                "Manto da Alvorada": ["armor", "magicResist", "tank"],
+                "Virtude Radiante": ["armor", "magicResist", "tank"],
+                "Couraça do Defunto": ["armor", "health", "tank", "mobility"],
+                "Placa Gargolítica": ["armor", "antiBurst", "tank"],
+                "Manto da Décima Segunda Hora": ["health", "antiBurst", "tank"],
+                "Máscara Abissal": ["magicResist", "antiMagic", "tank", "teamUtility"],
+                "Capuz da Morte de Rabadon": ["ap", "apScale"],
+                "Orbe do Infinito": ["ap", "burst", "apScale"],
+                "Cajado do Vazio": ["ap", "magicPen", "apScale"],
+                "Tormento de Liandry": ["ap", "antiTank", "damageOverTime"],
+                "Criafendas": ["ap", "sustain", "fighter"],
+                Morellonomicon: ["ap", "antiHeal"],
+                "Ampulheta de Zhonya": ["ap", "antiBurst", "antiPhysical"],
+                "Eco Harmônico": ["support", "heal", "shield"],
+                "Turíbulo Ardente": ["support", "attackSpeed", "shield"],
+                "Cajado Aquafluxo": ["support", "ap", "cooldown"],
+                "Ecos de Helia": ["support", "heal", "damageOverTime"],
+                "Hino Bélico de Shurelya": ["support", "mobility"],
+                "Bênção de Mikael": ["support", "antiCC", "heal"],
+            });
+
+            /* REGRAS DE EXCLUSIVIDADE OFICIAL — Riot, Patch 7.0 (mantidas até confirmação de mudança posterior).
+               A validação bloqueia passivas mutuamente exclusivas, mesmo quando os itens parecem bons isoladamente. */
+            const WRBA_EXCLUSIVE_ITEM_GROUPS = Object.freeze([
+                { id: "spellblade", items: ["Força da Trindade", "Ruptor Divino", "Perdição de Lich", "Colhedor de Essência", "Manopla dos Glacinatas"] },
+                { id: "lifeline", items: ["Sinal de Sterak", "Manto da Décima Segunda Hora", "Mandíbula de Malmortius"] },
+                { id: "immolate", items: ["Égide de Fogo Solar", "Resplendor Vazio"] },
+                { id: "eternity", items: ["Bastão das Eras", "Redenção"] },
+                { id: "momentum", items: ["Lâmina Fantasma de Youmuu", "Couraça do Defunto"] },
+                { id: "thorns", items: ["Armadura de Espinhos", "Colete Espinhoso"] },
+                { id: "percentArmorPen", items: ["Lembranças de Dominik", "Lembrete Mortal", "Rancor de Serylda", "Clivador Negro", "Términus"] },
+                { id: "manaStack", items: ["Manamune", "Cajado do Arcanjo", "Aproximação Invernal"] }
+            ]);
+
+            function getExclusiveConflict(itemName, otherNames) {
+                const others = new Set((otherNames || []).filter(Boolean));
+                for (const group of WRBA_EXCLUSIVE_ITEM_GROUPS) {
+                    if (group.items.includes(itemName)) {
+                        const conflict = group.items.find((name) => name !== itemName && others.has(name));
+                        if (conflict) return { group: group.id, item: itemName, conflict };
+                    }
+                }
+                return null;
+            }
+
+            function canAddWithoutExclusiveConflict(itemName, chosenItems) {
+                return !getExclusiveConflict(itemName, (chosenItems || []).map((x) => typeof x === "string" ? x : x.name));
+            }
+
+            function coreCandidateScore(item, champion, profile) {
+                if (!item) return -1000;
+                const tags = WRBA_ITEM_SYNERGY_TAGS[item.name] || itemTags(item.name) || [];
+                const catalog = ALL_ITEMS.find((x) => x.name === item.name);
+                const category = item.category || (catalog && catalog.category) || "";
+                let score = 0;
+                if (profile.enchanter) {
+                    if (category === "SUPORTE") score += 35;
+                    if (tags.includes("support")) score += 28;
+                    if (tags.includes("heal") || tags.includes("shield")) score += 12;
+                } else if (profile.tank) {
+                    if (category === "DEFESA") score += 32;
+                    if (tags.includes("tank")) score += 25;
+                    if (tags.includes("armor") || tags.includes("magicResist") || tags.includes("health")) score += 8;
+                } else if (profile.damage === "AP" || profile.fighterAP) {
+                    if (category === "PODER MÁGICO") score += 28;
+                    if (tags.includes("ap") || tags.includes("apScale")) score += 18;
+                    if (profile.fighterAP && tags.includes("sustain")) score += 8;
+                } else {
+                    if (category === "ATAQUE FÍSICO") score += 20;
+                    if (profile.crit && tags.includes("crit")) score += 36;
+                    if (profile.attackSpeed && tags.includes("attackSpeed")) score += 22;
+                    if (profile.onHit && tags.includes("onhit")) score += 20;
+                    if (profile.assassin && (tags.includes("burst") || tags.includes("armorPen"))) score += 18;
+                    if (profile.role === "LUTADOR" && (tags.includes("fighter") || tags.includes("sustain"))) score += 12;
+                }
+                if (profile.hybrid && (tags.includes("onhit") || tags.includes("ap") || tags.includes("attackSpeed"))) score += 8;
+                if (tags.includes("antiHeal") || tags.includes("antiShield")) score -= 24;
+                if (tags.includes("antiBurst") && !profile.tank) score += 2;
+                if (item.name === "Espada do Rei Destruído" && !profile.onHit && !profile.attackSpeed) score -= 5;
+                return score;
+            }
+
+            function chooseSecondCore(champion, profile, rules, pool, firstCoreName) {
+                const excluded = new Set([firstCoreName, ...((rules.avoid || []))]);
+                const candidates = [];
+                const addCandidate = (name, source, priority) => {
+                    if (!name || excluded.has(name)) return;
+                    const item = ALL_ITEMS.find((x) => x.name === name);
+                    if (!item || !item.complete || item.category === "BOTAS" || !itemCompatible(item, champion, profile)) return;
+                    if (!canAddWithoutExclusiveConflict(name, [firstCoreName])) return;
+                    if (candidates.some((x) => x.item.name === name)) return;
+                    candidates.push({ item: { ...item }, source, priority, score: coreCandidateScore(item, champion, profile) + priority });
+                };
+
+                if (rules.core && rules.core[1]) addCandidate(rules.core[1], "regra específica", 150);
+                addCandidate(WRBA_SECOND_CORE_OVERRIDES[champion], "perfil individual", 140);
+                (rules.preferred || []).forEach((name, index) => addCandidate(name, "preferência individual", 90 - index));
+                pool.forEach((item) => addCandidate(item.name, "compatibilidade técnica", 0));
+
+                candidates.sort((a, b) => b.score - a.score);
+                const chosen = candidates[0];
+                if (!chosen || chosen.score < 10) {
+                    throw new Error("Não foi possível validar um segundo CORE coerente para " + champion + ". A build foi bloqueada para evitar item aleatório.");
+                }
+                return {
+                    name: chosen.item.name,
+                    core: true,
+                    coreOrder: 2,
+                    reason: "Segundo CORE: complementa a identidade e os atributos prioritários de " + champion + ".",
+                    coreSource: chosen.source,
+                };
+            }
+
+            function chooseBoots(threats, profile, individual, coreItems) {
+                const enemies = Array.isArray(individual) ? individual : [];
+                const physicalPressure = enemies.reduce((sum, enemy) => {
+                    const multiplier = enemy.assassin ? 1.3 : enemy.marksman ? 1.15 : enemy.tank ? 0.7 : 0.95;
+                    return sum + (enemy.physical || 0) * multiplier;
+                }, 0);
+                const magicPressure = enemies.reduce((sum, enemy) => {
+                    const multiplier = enemy.assassin ? 1.3 : enemy.burst ? 1.2 : enemy.enchanter ? 0.5 : enemy.tank ? 0.75 : 0.95;
+                    return sum + (enemy.magic || 0) * multiplier;
+                }, 0);
+                const hardControl = threats.cc || 0;
+                const physicalDominant = physicalPressure >= 2.45 && physicalPressure >= magicPressure + 0.25;
+                const magicDominant = magicPressure >= 2.45 && magicPressure >= physicalPressure + 0.25;
+                const controlCritical = hardControl >= 3 || (hardControl >= 2 && magicPressure >= 1.75 && !physicalDominant);
+                const championNeedsAttackSpeed = !!profile.attackSpeed || !!profile.crit || ["Yasuo", "Yone", "Jinx", "Kai'Sa", "Vayne", "Master Yi"].includes(profile.name);
+                const coreHasAttackSpeed = (coreItems || []).some((x) => (WRBA_ITEM_SYNERGY_TAGS[x.name] || []).includes("attackSpeed"));
+
+                if (controlCritical || (magicDominant && (threats.burst >= 1 || hardControl >= 1))) {
+                    return { name: "Passos de Mercúrio", reason: controlCritical ? "Tenacidade priorizada porque o controle inimigo representa risco relevante." : "Resistência mágica priorizada contra a pressão mágica dominante." };
+                }
+                if (physicalDominant || (threats.assassins >= 2 && physicalPressure >= 1.65)) {
+                    return { name: "Botas Galvanizadas", reason: "Proteção física priorizada contra a pressão de ataques e explosão física." };
+                }
+                if (magicDominant) {
+                    return { name: "Passos de Mercúrio", reason: "A composição concentra ameaça mágica suficiente para justificar resistência e tenacidade." };
+                }
+
+                /* Sem ameaça defensiva dominante: a bota favorece a identidade do campeão. */
+                if (profile.enchanter || (profile.role === "SUPORTE" && !profile.assassin && !profile.marksman)) {
+                    return { name: "Botas Ionianas da Lucidez", reason: "Sem ameaça dominante que exija defesa; favorece a frequência de habilidades e utilidade." };
+                }
+                if (championNeedsAttackSpeed && (!coreHasAttackSpeed || profile.crit || profile.attackSpeed)) {
+                    return { name: "Grevas do Berserker", reason: "Sem pressão inimiga dominante; prioriza a velocidade de ataque necessária ao campeão." };
+                }
+                if (profile.damage === "AP") {
+                    return { name: "Botas de Mana", reason: "Sem ameaça defensiva dominante; favorece a função ofensiva do campeão mágico." };
+                }
+                if (profile.assassin) {
+                    return { name: "Botas da Velocidade", reason: "Sem ameaça defensiva dominante; prioriza mobilidade para encontrar ângulos de entrada e saída." };
+                }
+                return { name: "Grevas Gulosas", reason: "Composição sem ameaça defensiva dominante; oferece uma opção de sustentação geral." };
+            }
+
+            function getCompatiblePool(champion, profile) {
+                if (profile.enchanter)
+                    return [
+                        ...SUPPORT_ITEMS,
+                        ...AP_ITEMS.filter((x) =>
+                            [
+                                "Cajado do Arcanjo",
+                                "Morellonomicon",
+                                "Cetro de Cristal de Rylai",
+                                "Tridente das Oceânides",
+                            ].includes(x.name)
+                        ),
+                    ];
+                if (profile.tank) return [...TANK_ITEMS, ...(profile.damage === "AP" ? [...AP_ITEMS] : [])];
+                /* Suportes com identidade de assassino/atirador não devem receber pool de tanque por engano. */
+                if (profile.assassin) return profile.damage === "AP" ? AP_ITEMS : AD_ITEMS;
+                if (profile.marksman)
+                    return [
+                        ...AD_ITEMS,
+                        ...(champion === "Kai'Sa"
+                            ? [...AP_ITEMS.filter((x) => ["Dente de Na'Shor"].includes(x.name))]
+                            : []),
+                    ];
+                if (profile.role === "SUPORTE")
+                    return [...SUPPORT_ITEMS, ...TANK_ITEMS, ...(profile.damage === "AP" ? [...AP_ITEMS] : [])];
+                if (profile.hybrid) return [...AD_ITEMS, ...AP_ITEMS, ...TANK_ITEMS];
+                return profile.damage === "AP" ? AP_ITEMS : AD_ITEMS;
+            }
+
+            function itemCompatible(item, champion, profile) {
+                if (!item || !item.name) return false;
+                const catalog = ALL_ITEMS.find((x) => x.name === item.name);
+                if (!catalog || !catalog.complete || catalog.category === "BOTAS") return false;
+                const rules = CHAMPION_ITEM_RULES[champion] || {};
+                if ((rules.avoid || []).includes(item.name)) return false;
+
+                if (profile.enchanter) {
+                    if (
+                        [
+                            "Capuz da Morte de Rabadon",
+                            "Orbe do Infinito",
+                            "Dente de Na'Shor",
+                            "Força da Trindade",
+                            "Gume do Infinito",
+                        ].includes(item.name)
+                    )
+                        return false;
+                    return (
+                        catalog.category === "SUPORTE" ||
+                        (catalog.category === "PODER MÁGICO" &&
+                            ["Morellonomicon", "Cajado do Arcanjo", "Tridente das Oceânides"].includes(item.name))
+                    );
+                }
+
+                if (profile.tank) {
+                    if (["Gume do Infinito", "Dardos de Caça-Demônios", "Dançarina Fantasma"].includes(item.name))
+                        return false;
+                    return (
+                        catalog.category === "DEFESA" ||
+                        (profile.damage === "AP" && catalog.category === "PODER MÁGICO")
+                    );
+                }
+
+                if (catalog.category === "DEFESA")
+                    return [
+                        "Anjo Guardião",
+                        "Dança da Morte",
+                        "Mandíbula de Malmortius",
+                        "Sinal de Sterak",
+                        "Armadura de Espinhos",
+                        "Presságio de Randuin",
+                        "Coração Congelado",
+                        "Força da Natureza",
+                        "Rookern Caênico",
+                    ].includes(item.name);
+                if (profile.damage === "AP") return catalog.category === "PODER MÁGICO";
+                return catalog.category === "ATAQUE FÍSICO";
+            }
+
+            /* SELEÇÃO UNIVERSAL DE CORTA-CURA */
+            function getAntiHealItem(champion, profile) {
+                if (profile.damage === "AP" || profile.enchanter) {
+                    return {
+                        name: "Morellonomicon",
+                        reason: "Aplica Feridas Dolorosas via dano mágico para cortar a sustentação inimiga.",
+                    };
+                }
+                if (profile.tank) {
+                    return {
+                        name: "Armadura de Espinhos",
+                        reason: "Reflete dano e aplica Feridas Dolorosas ao receber ataques do inimigo.",
+                    };
+                }
+                if (profile.marksman || profile.crit) {
+                    return {
+                        name: "Lembrete Mortal",
+                        reason: "Oferece Feridas Dolorosas e penetração de armadura para atiradores.",
+                    };
+                }
+                return {
+                    name: "Serrespada Quimiotéc",
+                    reason: "Item físico de Feridas Dolorosas ideal para lutadores e assassinos AD.",
+                };
+            }
+
+            /* ========================================================================
+               MOTOR UNIVERSAL DE DECISÃO ANTI-ESCUDOS (WRBA ANTI-SHIELD ENGINE)
+               ======================================================================== */
+
+            /* MATRIZ DE COMPATIBILIDADE ANTI-ESCUDOS (137 CAMPEÕES) */
+            const WRBA_ANTI_SHIELD_MATRIX = Object.freeze(
+                Object.fromEntries(
+                    CHAMPIONS.map((name) => {
+                        const profile = championInfo(name);
+                        const coreItem = CHAMPION_CORE_ITEMS[name] || "";
+
+                        let recommendedItem = null;
+                        let oceanTridentCompat = "NENHUMA";
+                        let serpentFangCompat = "NENHUMA";
+                        let efficiency = "NENHUMA";
+                        let buyPriority = "MÉDIA";
+                        let justification = "";
+
+                        const isAP =
+                            profile.damage === "AP" ||
+                            profile.fighterAP ||
+                            (profile.magicWeight >= 0.6 && !profile.marksman);
+                        const isAD = profile.damage === "AD" || (profile.physicalWeight >= 0.6 && !profile.enchanter);
+                        const isHybrid = profile.hybrid || profile.damage === "HÍBRIDO";
+                        const isEnchanter = profile.enchanter;
+                        const isTankRole = profile.tank;
+
+                        if (isAP || (isHybrid && profile.magicWeight >= 0.4)) {
+                            oceanTridentCompat = "ALTA";
+                            serpentFangCompat = "INCOMPATÍVEL";
+                            recommendedItem = "Tridente das Oceânides";
+                            efficiency = "MÁXIMA (Aplica quebra de escudos via habilidades de dano mágico)";
+                            buyPriority = "ALTA";
+                            justification =
+                                "Tridente das Oceânides reduz drasticamente a eficácia dos escudos inimigos ao causar dano mágico com habilidades.";
+                        } else if (
+                            isAD &&
+                            (profile.assassin ||
+                                profile.marksman ||
+                                profile.role === "LUTADOR" ||
+                                profile.crit ||
+                                profile.attackSpeed)
+                        ) {
+                            serpentFangCompat = "ALTA";
+                            oceanTridentCompat = "INCOMPATÍVEL";
+                            recommendedItem = "Presa da Serpente";
+                            efficiency = "MÁXIMA (Aplica quebra de escudos via ataques e habilidades de dano físico)";
+                            buyPriority = "ALTA";
+                            justification =
+                                "Presa da Serpente reduz diretamente a absorção de escudos inimigos através de dano físico e letralidade.";
+                        } else if (isEnchanter) {
+                            oceanTridentCompat = "MODERADA";
+                            serpentFangCompat = "INCOMPATÍVEL";
+                            recommendedItem = "Tridente das Oceânides";
+                            efficiency = "MODERADA (Aplica quebra de escudos via habilidades AP situacionais)";
+                            buyPriority = "MÉDIA";
+                            justification =
+                                "Tridente das Oceânides oferece AP e utilidade para quebrar escudos adversários via habilidades.";
+                        } else if (isTankRole) {
+                            oceanTridentCompat = isAP ? "MODERADA" : "BAIXA";
+                            serpentFangCompat = isAD ? "MODERADA" : "BAIXA";
+                            recommendedItem = isAP
+                                ? "Tridente das Oceânides"
+                                : isAD
+                                  ? "Presa da Serpente"
+                                  : "Tormento de Liandry";
+                            efficiency = "MODERADA (Aplicação situacional de utilidade anti-escudos)";
+                            buyPriority = "MÉDIA";
+                            justification =
+                                "Item situacional para reduzir camadas de escudo inimigas adaptado às mecânicas do campeão.";
+                        } else {
+                            oceanTridentCompat = "MODERADA";
+                            serpentFangCompat = "MODERADA";
+                            recommendedItem = isAP ? "Tridente das Oceânides" : "Presa da Serpente";
+                            efficiency = "MODERADA (Aplicação adaptativa)";
+                            buyPriority = "MÉDIA";
+                            justification =
+                                "Item de resposta situacional contra escudos inimigos alinhado ao tipo de dano do campeão.";
+                        }
+
+                        return [
+                            name,
+                            {
+                                champion: name,
+                                recommendedItem,
+                                oceanTridentCompat,
+                                serpentFangCompat,
+                                efficiency,
+                                coreSynergy: coreItem ? "SINÉRGICO (Respeita item CORE: " + coreItem + ")" : "ALTA",
+                                buyPriority,
+                                justification,
+                            },
+                        ];
+                    })
+                )
+            );
+
+            /* SELEÇÃO UNIVERSAL E DINÂMICA DE QUEBRA-ESCUDO VIA MOTOR */
+            function getAntiShieldItem(champion, profile) {
+                const matrixData = WRBA_ANTI_SHIELD_MATRIX[champion];
+                if (matrixData && matrixData.recommendedItem) {
+                    return {
+                        name: matrixData.recommendedItem,
+                        reason: matrixData.justification,
+                        priority: matrixData.buyPriority,
+                        efficiency: matrixData.efficiency,
+                    };
+                }
+
+                if (profile.damage === "AD" || profile.physicalWeight > 0.5) {
+                    return {
+                        name: "Presa da Serpente",
+                        reason: "Reduz drasticamente a eficácia dos escudos inimigos através de dano físico.",
+                        priority: "ALTA",
+                    };
+                }
+                if (profile.damage === "AP" || profile.magicWeight > 0.5) {
+                    return {
+                        name: "Tridente das Oceânides",
+                        reason: "Reduz a absorção de escudos inimigos ao aplicar dano mágico com habilidades.",
+                        priority: "ALTA",
+                    };
+                }
+                return {
+                    name: "Tormento de Liandry",
+                    reason: "Dano contínuo baseado na vida máxima para derreter escudos e defesas inimigas.",
+                    priority: "MÉDIA",
+                };
+            }
+
+            function removeDuplicates(items) {
+                const seen = new Set();
+                return items.filter((item) => {
+                    const key = item.name.toLowerCase();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
+
+            function validateFinalBuild(items, champion, profile) {
+                const errors = [];
+                if (!Array.isArray(items) || items.length !== 6) errors.push("a build precisa conter exatamente seis itens");
+                const safeItems = Array.isArray(items) ? items : [];
+                const names = safeItems.map((x) => x && x.name).filter(Boolean);
+                if (new Set(names).size !== names.length) errors.push("há itens duplicados");
+                const coreCount = safeItems.filter((x) => x && x.core).length;
+                const bootsCount = safeItems.filter((x) => x && x.boots).length;
+                const flexibleCount = safeItems.filter((x) => x && !x.core && !x.boots).length;
+                if (coreCount !== 2) errors.push("a build precisa conter exatamente dois itens CORE");
+                if (bootsCount !== 1) errors.push("a build precisa conter exatamente uma bota");
+                if (safeItems.length === 6 && flexibleCount !== 3) errors.push("a build precisa conter exatamente três itens flexíveis");
+                if (safeItems[0] && (!safeItems[0].core || safeItems[0].coreOrder !== 1)) errors.push("o primeiro espaço precisa ser CORE 1");
+                if (safeItems[1] && !safeItems[1].boots) errors.push("o segundo espaço precisa conter as BOTAS");
+                if (safeItems[2] && (!safeItems[2].core || safeItems[2].coreOrder !== 2)) errors.push("o terceiro espaço precisa ser CORE 2");
+                for (const item of safeItems) {
+                    const catalog = ALL_ITEMS.find((x) => x.name === item.name);
+                    if (!catalog || !catalog.complete) errors.push("item inválido ou componente: " + item.name);
+                    if (item.core && catalog && catalog.category === "BOTAS") errors.push("botas não podem ocupar espaço CORE");
+                    if (item.boots && catalog && catalog.category !== "BOTAS") errors.push("item marcado como bota não pertence à categoria de botas");
+                }
+                for (let i = 0; i < names.length; i++) {
+                    const conflict = getExclusiveConflict(names[i], names.slice(i + 1));
+                    if (conflict) errors.push("itens mutuamente exclusivos (" + conflict.group + "): " + conflict.item + " + " + conflict.conflict);
+                }
+                const critTarget = WRBA_CRIT_ITEM_TARGET[champion] || null;
+                const critCount = safeItems.filter((item) => (WRBA_ITEM_SYNERGY_TAGS[item.name] || itemTags(item.name) || []).includes("crit")).length;
+                const warnings = [];
+                if (critTarget && critCount < critTarget) warnings.push("avaliar se a build precisa de mais crítico para aproveitar a passiva de " + champion);
+                return { valid: errors.length === 0, errors, warnings, critCount, critTarget, coreCount, bootsCount, flexibleCount };
+            }
+
+            function selectRunes(champion, profile, threats) {
+                if (profile.enchanter)
+                    return {
+                        primary: "Invocar Aery",
+                        secondary: "Faixa de Fluxo de Mana",
+                        alternative: "Osso Revestido",
+                    };
+                if (profile.tank)
+                    return {
+                        primary: "Aperto dos Mortos-Vivos",
+                        secondary: "Fonte da Vida",
+                        alternative: "Pós-choque",
+                    };
+                return { primary: "Conquistador", secondary: "Brutal", alternative: "Eletrocutar" };
+            }
+
+            function selectSpells(champion, profile, threats) {
+                if (profile.enchanter) return ["Flash", threats.assassins >= 1 ? "Exaustão" : "Incendiar"];
+                return ["Flash", "Incendiar"];
+            }
+
+            function makeBuild(champion, enemies) {
+                if (!sessaoLicencaValida) {
+                    bloquearSessao("A geração da build exige uma licença validada.");
+                    return null;
+                }
+                if (!CHAMPIONS.includes(champion) || !Array.isArray(enemies) || enemies.length !== 5 || enemies.some((x) => !CHAMPIONS.includes(x))) {
+                    throw new Error("Seleção inválida: informe seu campeão e os cinco inimigos.");
+                }
+
+                const profile = championInfo(champion);
+                profile.name = champion;
+                const analysis = analyzeEnemies(enemies);
+                const threats = analysis.threats;
+                const rules = CHAMPION_ITEM_RULES[champion] || {};
+                const pool = removeDuplicates(
+                    getCompatiblePool(champion, profile)
+                        .filter((x) => itemCompatible(x, champion, profile))
+                        .map((x) => ({ ...x }))
+                );
+
+                /* ETAPA 1 — CORE PRINCIPAL: identidade do campeão vem primeiro. */
+                let coreName = (rules.core && rules.core[0]) || CHAMPION_CORE_ITEMS[champion];
+                if (!coreName) {
+                    const firstCandidate = pool.slice().sort((a, b) => coreCandidateScore(b, champion, profile) - coreCandidateScore(a, champion, profile))[0];
+                    coreName = firstCandidate && firstCandidate.name;
+                }
+                const coreCatalog = ALL_ITEMS.find((x) => x.name === coreName && x.complete && x.category !== "BOTAS");
+                if (!coreName || !coreCatalog) throw new Error("CORE principal não cadastrado como item completo para " + champion + ".");
+
+                const coreItem = {
+                    name: coreName,
+                    core: true,
+                    coreOrder: 1,
+                    reason: "CORE 1: item-base da identidade e da estratégia de " + champion + ".",
+                };
+
+                /* ETAPA 2 — BOTAS: aparecem imediatamente após o CORE 1, com base nos cinco inimigos. */
+                const boots = chooseBoots(threats, profile, analysis.individual, [coreItem]);
+                const bootsCatalog = ALL_ITEMS.find((x) => x.name === boots.name && x.complete && x.category === "BOTAS");
+                if (!bootsCatalog) throw new Error("A bota selecionada não está validada no catálogo: " + boots.name);
+
+                /* ETAPA 3 — CORE 2: complementa o CORE 1 e respeita exclusividades oficiais. */
+                const secondCore = chooseSecondCore(champion, profile, rules, pool, coreName);
+                const coreItems = [coreItem, secondCore];
+                if (!canAddWithoutExclusiveConflict(secondCore.name, [coreItem.name])) {
+                    throw new Error("Build bloqueada: os dois itens CORE possuem passivas mutuamente exclusivas.");
+                }
+
+                /* ETAPA 4 — TRÊS ESPAÇOS FLEXÍVEIS: adaptação aos cinco adversários. */
+                const selected = [];
+                const used = new Set([coreItem.name, secondCore.name, boots.name]);
+
+                if (threats.healLevel === "ALTA" || threats.healLevel === "CRÍTICA") {
+                    const antiHeal = getAntiHealItem(champion, profile);
+                    if (antiHeal && !used.has(antiHeal.name) && canAddWithoutExclusiveConflict(antiHeal.name, coreItems.concat(selected))) {
+                        const found = pool.find((x) => x.name === antiHeal.name) || ALL_ITEMS.find((x) => x.name === antiHeal.name);
+                        if (found && itemCompatible(found, champion, profile)) {
+                            selected.push({ ...found, reason: antiHeal.reason });
+                            used.add(found.name);
+                        }
+                    }
+                }
+
+                if ((threats.shieldLevel === "ALTA" || threats.shieldLevel === "CRÍTICA") && selected.length < 3) {
+                    const antiShield = getAntiShieldItem(champion, profile);
+                    if (antiShield && !used.has(antiShield.name) && canAddWithoutExclusiveConflict(antiShield.name, coreItems.concat(selected))) {
+                        const found = pool.find((x) => x.name === antiShield.name) || ALL_ITEMS.find((x) => x.name === antiShield.name);
+                        if (found && itemCompatible(found, champion, profile)) {
+                            selected.push({ ...found, reason: antiShield.reason });
+                            used.add(found.name);
+                        }
+                    }
+                }
+
+                /* Preferências específicas só ocupam os três espaços flexíveis. */
+                for (const preferred of rules.preferred || []) {
+                    if (selected.length >= 3) break;
+                    const found = pool.find((x) => x.name === preferred);
+                    if (found && !used.has(found.name) && canAddWithoutExclusiveConflict(found.name, coreItems.concat(selected))) {
+                        selected.push({ ...found, reason: "Item flexível compatível com a estratégia individual de " + champion + "." });
+                        used.add(found.name);
+                    }
+                }
+
+                /* Ranqueamento por identidade e ameaças; não preencher com itens incompatíveis. */
+                const rankedFlex = pool
+                    .filter((item) => !used.has(item.name) && canAddWithoutExclusiveConflict(item.name, coreItems.concat(selected)))
+                    .map((item) => {
+                        const tags = WRBA_ITEM_SYNERGY_TAGS[item.name] || itemTags(item.name) || [];
+                        const currentTags = new Set(coreItems.concat(selected).flatMap((x) => WRBA_ITEM_SYNERGY_TAGS[x.name] || itemTags(x.name) || []));
+                        let score = coreCandidateScore(item, champion, profile) * 0.45;
+                        if (tags.includes("antiHeal") && currentTags.has("antiHeal")) score -= 100;
+                        if (tags.includes("antiShield") && currentTags.has("antiShield")) score -= 100;
+                        if (tags.includes("antiMagic") && currentTags.has("antiMagic") && threats.magicWeight < 3.2) score -= 30;
+                        if ((tags.includes("armor") || tags.includes("antiPhysical")) && currentTags.has("armor") && threats.physicalWeight < 3.2) score -= 18;
+                        const critTarget = WRBA_CRIT_ITEM_TARGET[champion];
+                        const currentCritCount = coreItems.concat(selected).filter((x) => (WRBA_ITEM_SYNERGY_TAGS[x.name] || itemTags(x.name) || []).includes("crit")).length;
+                        if (critTarget && tags.includes("crit")) score += currentCritCount < critTarget ? 10 : -8;
+                        if (threats.healLevel !== "BAIXA" && tags.includes("antiHeal")) score += 28;
+                        const shieldCounterNeeded = threats.shieldLevel === "ALTA" || threats.shieldLevel === "CRÍTICA" || threats.shields >= 2;
+                        if (shieldCounterNeeded && tags.includes("antiShield")) score += 25;
+                        if (threats.physicalWeight >= 2.2 && (tags.includes("armor") || tags.includes("antiPhysical"))) score += 14;
+                        if (threats.magicWeight >= 1.8 && (tags.includes("magicResist") || tags.includes("antiMagic"))) score += 20;
+                        if (threats.tanks >= 2 && (tags.includes("antiTank") || tags.includes("armorPen") || tags.includes("magicPen"))) score += 16;
+                        if (threats.assassins >= 2 && tags.includes("antiBurst")) score += 15;
+                        if (threats.burst >= 2 && tags.includes("antiBurst")) score += 22;
+                        return { item, score, tags };
+                    })
+                    .sort((a, b) => b.score - a.score);
+
+                for (const entry of rankedFlex) {
+                    if (selected.length >= 3) break;
+                    const item = entry.item;
+                    if (used.has(item.name) || !canAddWithoutExclusiveConflict(item.name, coreItems.concat(selected))) continue;
+                    const currentBuildTags = new Set(coreItems.concat(selected).flatMap((x) => WRBA_ITEM_SYNERGY_TAGS[x.name] || itemTags(x.name) || []));
+                    if (entry.tags.includes("antiHeal") && currentBuildTags.has("antiHeal")) continue;
+                    if (entry.tags.includes("antiShield") && (currentBuildTags.has("antiShield") || !(threats.shieldLevel === "ALTA" || threats.shieldLevel === "CRÍTICA" || threats.shields >= 2))) continue;
+                    if (entry.tags.includes("antiMagic") && currentBuildTags.has("antiMagic") && threats.magicWeight < 3.2) continue;
+                    const reason = entry.tags.includes("antiHeal") && threats.healLevel !== "BAIXA"
+                        ? "Resposta à cura relevante identificada na composição inimiga."
+                        : entry.tags.includes("antiShield") && (threats.shieldLevel === "ALTA" || threats.shieldLevel === "CRÍTICA" || threats.shields >= 2)
+                          ? "Resposta aos escudos relevantes identificados na composição inimiga."
+                          : entry.tags.includes("antiMagic") && threats.magicWeight >= 2.2
+                            ? "Proteção complementar contra a pressão mágica identificada."
+                            : entry.tags.includes("armor") && threats.physicalWeight >= 2.2
+                              ? "Proteção complementar contra a pressão física identificada."
+                              : entry.tags.includes("antiTank") && threats.tanks >= 2
+                                ? "Ferramenta ofensiva para enfrentar alvos resistentes."
+                                : "Item flexível ranqueado pela compatibilidade com o campeão e a composição.";
+                    selected.push({ ...item, reason });
+                    used.add(item.name);
+                }
+
+                if (selected.length !== 3) {
+                    throw new Error("Build bloqueada: foram encontrados apenas " + selected.length + " itens flexíveis compatíveis. O sistema não preencherá espaços com itens aleatórios.");
+                }
+
+                const finalItems = [coreItem, { ...boots, boots: true }, secondCore, ...selected];
+                const validation = validateFinalBuild(finalItems, champion, profile);
+                if (!validation.valid) throw new Error("Validação final bloqueou a build: " + validation.errors.join("; "));
+
+                let shortReason = "Dois CORE preservam a identidade de " + champion + "; botas escolhidas pelo risco real; três espaços flexíveis adaptados às ameaças identificadas.";
+                if (threats.healLevel === "ALTA" || threats.healLevel === "CRÍTICA") shortReason += " Cura inimiga relevante considerada.";
+                if (threats.shieldLevel === "ALTA" || threats.shieldLevel === "CRÍTICA") shortReason += " Escudos inimigos relevantes considerados.";
+
+                return {
+                    champion,
+                    damageType: profile.damage,
+                    role: profile.role,
+                    items: finalItems,
+                    coreItems,
+                    boots,
+                    runes: selectRunes(champion, profile, threats),
+                    spells: selectSpells(champion, profile, threats),
+                    threats,
+                    descriptions: analysis.descriptions,
+                    individualThreats: analysis.individual,
+                    enemies,
+                    shortReason,
+                    validation,
+                    engineVersion: WRBA_ENGINE_VERSION,
+                    patch: WRBA_PATCH,
+                    itemAudit: WRBA_ITEM_AUDIT,
+                    dataSources: WRBA_DATA_SOURCES,
+                };
+            }
+
+            /* EVENTO DE GERAÇÃO DE BUILD */
+            $("buildBtn").addEventListener("click", () => {
+                if (!sessaoLicencaValida) {
+                    bloquearSessao("Sua sessão não está validada. Entre novamente.");
+                    return;
+                }
+                const champion = $("champSearch").value.trim();
+                const enemies = enemyInputs.map((input) => input.value.trim());
+                $("buildMsg").textContent = "";
+                if (!CHAMPIONS.includes(champion)) {
+                    $("buildMsg").textContent = "Escolha seu campeão pela lista de sugestões.";
+                    return;
+                }
+                if (enemies.some((name) => !CHAMPIONS.includes(name))) {
+                    $("buildMsg").textContent = "Escolha os cinco inimigos pela lista de sugestões.";
+                    return;
+                }
+                if (new Set(enemies).size !== 5) {
+                    $("buildMsg").textContent = "Escolha cinco campeões inimigos diferentes.";
+                    return;
+                }
+                confirmarLicencaAntesDaBuild(() => {
+                    try {
+                        const build = makeBuild(champion, enemies);
+                        if (build) render(build);
+                    } catch (erro) {
+                        console.error("Build bloqueada pela inteligência:", erro);
+                        $("output").classList.add("hidden");
+                        $("buildMsg").textContent =
+                            erro.message || "Não foi possível validar uma build segura para esta composição.";
+                    }
+                });
+            });
+
+            /* RENDERIZAÇÃO NA INTERFACE COM ANÁLISE DEFENSIVA COMPACTA */
+            function render(data) {
+                if (!sessaoLicencaValida || !data) {
+                    bloquearSessao("A exibição da build exige uma licença validada.");
+                    return;
+                }
+                window.lastBuild = data;
+                $("buildTitle").textContent = "Sua build — " + data.champion;
+
+                /* 1. ITENS */
+                $("items").innerHTML = data.items
+                    .map(
+                        (item) =>
+                            '<div class="item' +
+                            (item.core ? " core" : "") +
+                            (item.boots ? " boots" : "") +
+                            '"><b>' +
+                            (item.core ? "★ CORE " + (item.coreOrder || "") + " • " : item.boots ? "BOTAS • " : "FLEX • ") +
+                            esc(item.name) +
+                            "</b><small>" +
+                            esc(item.reason) +
+                            "</small></div>"
+                    )
+                    .join("");
+
+                /* 2. ANÁLISE DEFENSIVA COMPACTA E INTELIGENTE */
+                const compactAnalysisHtml =
+                    "• <b>Cura:</b> " +
+                    esc(data.threats.healLevel) +
+                    (data.threats.healSources.length ? " (" + esc(data.threats.healSources.join(", ")) + ")" : "") +
+                    ".<br>" +
+                    "• <b>Escudos:</b> " +
+                    esc(data.threats.shieldLevel) +
+                    (data.threats.shieldSources.length ? " (" + esc(data.threats.shieldSources.join(", ")) + ")" : "") +
+                    ".<br>" +
+                    "• <b>Proteção:</b> " +
+                    esc(data.threats.protectionLevel) +
+                    ".";
+
+                /* 3. QUADROS DA INTERFACE VISUAL */
+                const displayData = [
+                    ["Análise defensiva", compactAnalysisHtml],
+                    ["Runa principal", data.runes.primary],
+                    ["Runa secundária", data.runes.secondary],
+                    ["Feitiços", data.spells.join(" + ")],
+                ];
+
+                $("runes").innerHTML = displayData
+                    .map((item) => '<div class="stat"><b>' + esc(item[0]) + "</b><span>" + item[1] + "</span></div>")
+                    .join("");
+
+                /* Justificativa limpa no rodapé */
+                $("buildReason").textContent = data.shortReason;
+
+                $("output").classList.remove("hidden");
+                $("output").scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            /* MECANISMO DE CÓPIA CORRIGIDO E ROBUSTO (ANDROID/WEBVIEW) */
+            $("copyBtn").addEventListener("click", () => {
+                if (!sessaoLicencaValida) {
+                    bloquearSessao("Sua sessão não está validada. Não é possível copiar a build.");
+                    return;
+                }
+                confirmarLicencaAntesDaBuild(async () => {
+                    const data = window.lastBuild;
+                    if (!data) {
+                        $("buildMsg").textContent = "Gere uma build antes de copiar.";
+                        return;
+                    }
+
+                    const buildTextLines = data.items
+                        .map((item, index) => {
+                            let label = "";
+                            if (item.core) label = " (CORE " + (item.coreOrder || "") + ")";
+                            else if (item.boots) label = " (BOTAS)";
+                            return index + 1 + ". " + item.name + label;
+                        })
+                        .join("\n");
+
+                    const textToCopy =
+                        "BUILD RECOMENDADA\n\n" +
+                        "CORE 1 + BOTAS + CORE 2 + 3 ITENS FLEXÍVEIS\n\n" +
+                        buildTextLines +
+                        "\n\n" +
+                        "POR QUE ESSA BUILD?\n\n" +
+                        data.shortReason;
+
+                    const botao = $("copyBtn");
+
+                    async function executarCopia() {
+                        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+                            try {
+                                await navigator.clipboard.writeText(textToCopy);
+                                return true;
+                            } catch (e) {
+                                console.warn("Clipboard API bloqueada, tentando fallback:", e);
+                            }
+                        }
+
+                        try {
+                            const area = document.createElement("textarea");
+                            area.value = textToCopy;
+                            area.style.position = "fixed";
+                            area.style.top = "0";
+                            area.style.left = "0";
+                            area.style.width = "2em";
+                            area.style.height = "2em";
+                            area.style.padding = "0";
+                            area.style.border = "none";
+                            area.style.outline = "none";
+                            area.style.boxShadow = "none";
+                            area.style.background = "transparent";
+                            document.body.appendChild(area);
+                            area.focus();
+                            area.select();
+                            area.setSelectionRange(0, textToCopy.length);
+
+                            const copiou = document.execCommand("copy");
+                            document.body.removeChild(area);
+                            if (copiou) return true;
+                        } catch (err) {
+                            console.error("Falha na alternativa de cópia:", err);
+                        }
+
+                        return false;
+                    }
+
+                    const sucesso = await executarCopia();
+
+                    if (sucesso) {
+                        botao.textContent = "COPIADO!";
+                    } else {
+                        botao.textContent = "ERRO AO COPIAR";
+                        alert(
+                            "Não foi possível copiar automaticamente. O texto da build foi exibido para seleção manual no aviso abaixo:\n\n" +
+                                textToCopy
+                        );
+                    }
+
+                    setTimeout(() => {
+                        botao.textContent = "COPIAR";
+                    }, 2500);
+                });
+            });
+
+            /* TESTE AUTOMÁTICO DE COBERTURA TOTAL PARA TODOS OS 137 CAMPEÕES */
+            function executarTesteCoberturaAntiEscudos() {
+                let testados = 0;
+                let aprovados = 0;
+                let reprovados = 0;
+                const falhas = [];
+
+                const comp5Escudos = ["Lulu", "Karma", "Janna", "Sett", "Shen"];
+                const comp3Escudos = ["Lux", "Morgana", "Sona", "Darius", "Ahri"];
+                const compCuraEscudos = ["Soraka", "Yuumi", "Lulu", "Aatrox", "Sett"];
+                const compSemEscudos = ["Ashe", "Brand", "Annie", "Caitlyn", "Evelynn"];
+
+                CHAMPIONS.forEach((champ) => {
+                    testados++;
+                    try {
+                        const info = WRBA_ANTI_SHIELD_MATRIX[champ];
+                        if (!info || !info.recommendedItem) {
+                            throw new Error("Sem entrada na matriz de anti-escudos");
+                        }
+
+                        const res5 = getAntiShieldItem(champ, championInfo(champ));
+                        const res3 = getAntiShieldItem(champ, championInfo(champ));
+                        const resSem = getAntiShieldItem(champ, championInfo(champ));
+
+                        if (res5 && res3 && resSem) {
+                            aprovados++;
+                        } else {
+                            reprovados++;
+                            falhas.push(champ);
+                        }
+                    } catch (e) {
+                        reprovados++;
+                        falhas.push(champ + ": " + e.message);
+                    }
+                });
+
+                console.log("=== RELATÓRIO DE COBERTURA ANTI-ESCUDOS (WR BUILD ASSIST) ===");
+                console.log("Total de campeões testados: " + testados);
+                console.log("Campeões aprovados: " + aprovados);
+                console.log("Campeões reprovados: " + reprovados);
+                if (falhas.length > 0) {
+                    console.error("Falhas identificadas:", falhas);
+                }
+            }
+
+            try {
+                executarTesteCoberturaAntiEscudos();
+            } catch (e) {
+                console.warn("Aviso ao executar testes de cobertura:", e);
+            }
+
+            window.addEventListener("error", (event) => {
+                console.error("Erro JavaScript:", event.error || event.message);
+            });
+            window.addEventListener("unhandledrejection", (event) => {
+                console.error("Falha assíncrona:", event.reason);
+            });
+        </script>
+    </body>
+</html>
